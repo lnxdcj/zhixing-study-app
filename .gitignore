@@ -1,0 +1,25 @@
+# Dependencies and local tooling
+node_modules/
+.pnpm-store/
+.netlify/
+.agents/
+.codex/
+
+# Local configuration and runtime data
+.env
+.env.*
+!.env.example
+*.log
+*.db
+*.db-shm
+*.db-wal
+uploads/
+
+# Local backups and generated packages
+backup-before-recovery-*/
+release/
+*.zip
+theme-video-test.png
+
+# Internal demonstration account inventory
+showcase-accounts.md
