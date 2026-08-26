@@ -1937,15 +1937,20 @@
       if (text !== "AI助手" && !text.includes("AI智能规划") && !/AI.*导游.*小知/.test(text)) return;
       if (item.dataset.aiGuideBound) return;
       item.dataset.aiGuideBound = "true";
+      const isCourseDesigner = text.includes("AI智能规划");
       if (item.tagName !== "BUTTON") {
         item.setAttribute("role", "button");
         item.setAttribute("tabindex", "0");
       }
-      item.setAttribute("aria-label", "打开AI研学导游");
+      item.setAttribute("aria-label", isCourseDesigner ? "打开课程设计器" : "打开AI研学导游");
       const open = function (event) {
         event.preventDefault();
         event.stopPropagation();
-        showAiGuide();
+        if (isCourseDesigner) {
+          window.location.assign(window.location.pathname + "#/ai-planner");
+        } else {
+          showAiGuide();
+        }
       };
       item.addEventListener("click", open, true);
       item.addEventListener("keydown", function (event) {
