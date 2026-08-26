@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b1220" />
+    <title>知行研学后台控制中心</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; min-height: 100%; background: #e9edf3; color: #111827; font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif; }
+      button, input, select, textarea { font: inherit; }
+      button { cursor: pointer; }
+      .shell { min-height: 100vh; background: linear-gradient(180deg,#0b1220 0,#0b1220 236px,#eef2f7 236px,#eef2f7 100%); }
+      .topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; max-width: 1280px; margin: 0 auto; padding: 22px 22px 16px; color: #fff; }
+      .brand { display: flex; align-items: center; min-width: 0; gap: 14px; }
+      .logo { display: grid; place-items: center; width: 46px; height: 46px; flex: 0 0 46px; border-radius: 8px; background: linear-gradient(135deg,#22c55e,#2563eb); color: #fff; font-weight: 900; box-shadow: 0 12px 28px rgba(37,99,235,.34); }
+      h1, h2, h3, p { margin: 0; letter-spacing: 0; }
+      .brand h1 { font-size: 22px; line-height: 1.2; }
+      .brand p { margin-top: 5px; color: #cbd5e1; font-size: 12px; line-height: 1.5; }
+      .account { display: flex; align-items: center; gap: 10px; }
+      .account span { max-width: 220px; overflow: hidden; color: #dbeafe; font-size: 13px; white-space: nowrap; text-overflow: ellipsis; }
+      .btn { min-height: 38px; padding: 0 14px; border: 0; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 900; }
+      .btn.primary { background: #2563eb; }
+      .btn.ghost { background: rgba(255,255,255,.12); }
+      .btn.danger { background: #ef4444; }
+      .btn.soft { background: #eef2ff; color: #1d4ed8; }
+      .login { display: grid; width: min(100% - 28px, 460px); margin: 12vh auto 0; gap: 14px; padding: 24px; border: 1px solid rgba(255,255,255,.18); border-radius: 8px; background: rgba(255,255,255,.98); box-shadow: 0 24px 60px rgba(15,23,42,.24); }
+      .login h2 { font-size: 24px; }
+      .login p { color: #64748b; font-size: 13px; line-height: 1.7; }
+      .layout { display: grid; grid-template-columns: 236px minmax(0,1fr); gap: 16px; max-width: 1280px; margin: 0 auto; padding: 0 22px 32px; }
+      .nav { position: sticky; top: 14px; display: grid; align-content: start; gap: 8px; min-height: calc(100vh - 112px); padding: 12px; border: 1px solid rgba(226,232,240,.86); border-radius: 8px; background: rgba(255,255,255,.96); box-shadow: 0 14px 34px rgba(15,23,42,.10); }
+      .nav button { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #475569; text-align: left; font-size: 14px; font-weight: 900; }
+      .nav button.is-active { background: #eff6ff; color: #1d4ed8; }
+      .nav i { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px; background: #f1f5f9; color: #64748b; font-style: normal; font-size: 11px; }
+      .nav button.is-active i { background: #dbeafe; color: #1d4ed8; }
+      .main { display: grid; gap: 14px; min-width: 0; }
+      .hero { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 14px; padding: 18px; border-radius: 8px; background: linear-gradient(135deg,#ffffff,#f8fafc); box-shadow: 0 14px 34px rgba(15,23,42,.10); }
+      .hero h2 { font-size: 22px; }
+      .hero p { margin-top: 6px; color: #64748b; font-size: 13px; line-height: 1.6; }
+      .badge { align-self: start; padding: 6px 10px; border-radius: 8px; background: #dcfce7; color: #047857; font-size: 12px; font-weight: 900; }
+      .command { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
+      .command-card { min-height: 112px; padding: 14px; border: 1px solid rgba(226,232,240,.9); border-radius: 8px; background: linear-gradient(180deg,#fff,#f8fafc); box-shadow: 0 12px 26px rgba(15,23,42,.07); }
+      .command-card strong { display: block; color: #0f172a; font-size: 15px; }
+      .command-card p { margin-top: 8px; color: #64748b; font-size: 12px; line-height: 1.55; }
+      .command-card button { margin-top: 12px; min-height: 32px; padding: 0 10px; border: 0; border-radius: 8px; background: #0f172a; color: #fff; font-size: 12px; font-weight: 900; }
+      .grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; }
+      .stat, .card { border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; box-shadow: 0 12px 30px rgba(15,23,42,.08); }
+      .stat { min-height: 104px; padding: 16px; }
+      .stat b { display: block; font-size: 30px; line-height: 1; }
+      .stat span { display: block; margin-top: 10px; color: #64748b; font-size: 12px; }
+      .stat small { display: block; margin-top: 8px; color: #94a3b8; font-size: 11px; }
+      .stat[data-tone="warn"] b { color: #d97706; }
+      .stat[data-tone="ok"] b { color: #059669; }
+      .stat[data-tone="bad"] b { color: #dc2626; }
+      .card { padding: 16px; }
+      .card header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+      .card h3 { font-size: 17px; }
+      .card small { color: #64748b; font-size: 11px; line-height: 1.5; }
+      .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .list { display: grid; gap: 8px; }
+      .row { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 10px; min-height: 64px; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; }
+      .row strong { display: block; overflow: hidden; font-size: 13px; white-space: nowrap; text-overflow: ellipsis; }
+      .row small { display: block; margin-top: 4px; color: #64748b; font-size: 11px; line-height: 1.45; }
+      .row button { min-height: 34px; padding: 0 12px; border: 0; border-radius: 8px; background: #2563eb; color: #fff; font-size: 12px; font-weight: 900; }
+      .row button[data-danger="true"] { background: #ef4444; }
+      .form { display: grid; gap: 11px; }
+      .form label { display: grid; gap: 6px; color: #334155; font-size: 12px; font-weight: 900; }
+      .form input, .form select, .form textarea { width: 100%; min-height: 42px; padding: 9px 11px; border: 1px solid #dbe3ea; border-radius: 8px; background: #fff; color: #0f172a; outline: none; }
+      .form textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
+      .form input:focus, .form select:focus, .form textarea:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+      .status { min-height: 22px; color: #059669; font-size: 12px; font-weight: 900; line-height: 1.5; }
+      .empty { padding: 14px; border-radius: 8px; background: #f8fafc; color: #64748b; font-size: 13px; line-height: 1.6; }
+      .ok { color: #059669; }
+      .warn { color: #d97706; }
+      .bad { color: #dc2626; }
+      .health-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+      .health { display: grid; gap: 8px; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; }
+      .health strong { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; }
+      .health strong::after { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; content: ""; }
+      .health[data-ok="false"] strong::after { background: #f59e0b; }
+      .health p { color: #64748b; font-size: 11px; line-height: 1.45; }
+      .bar-row { display: grid; grid-template-columns: 88px minmax(0,1fr) 42px; align-items: center; gap: 10px; font-size: 12px; color: #475569; }
+      .bar-track { height: 10px; overflow: hidden; border-radius: 999px; background: #e5e7eb; }
+      .bar-fill { display: block; height: 100%; width: var(--w,0%); border-radius: inherit; background: linear-gradient(90deg,#2563eb,#22c55e); }
+      .timeline { display: grid; gap: 8px; }
+      .timeline div { position: relative; padding-left: 18px; color: #475569; font-size: 12px; line-height: 1.5; }
+      .timeline div::before { position: absolute; left: 0; top: 6px; width: 7px; height: 7px; border-radius: 50%; background: #2563eb; content: ""; }
+      .table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 8px; font-size: 12px; }
+      .table th, .table td { padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+      .table th { color: #475569; background: #f8fafc; font-weight: 900; }
+      @media (max-width: 860px) {
+        .topbar { align-items: flex-start; flex-direction: column; padding: 16px 12px 12px; }
+        .account { width: 100%; justify-content: space-between; }
+        .layout { grid-template-columns: 1fr; padding: 0 12px 24px; }
+        .nav { position: static; grid-template-columns: repeat(5,minmax(82px,1fr)); min-height: 0; overflow-x: auto; }
+        .nav button { min-width: 82px; justify-content: center; }
+        .hero { grid-template-columns: 1fr; }
+        .grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+        .command { grid-template-columns: 1fr; }
+        .health-grid { grid-template-columns: 1fr; }
+        .two { grid-template-columns: 1fr; }
+        .row { grid-template-columns: minmax(0,1fr); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="shell"></div>
+    <script>
+      (function () {
+        "use strict";
+        const app = document.getElementById("app");
+        let currentUser = null;
+        let cache = null;
+        let activePane = "overview";
+
+        function esc(value) {
+          return String(value == null ? "" : value).replace(/[&<>"']/g, function (ch) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+          });
+        }
+        async function api(path, options) {
+          const response = await fetch(path, { credentials: "include", ...(options || {}) });
+          const type = response.headers.get("content-type") || "";
+          const data = type.includes("application/json") ? await response.json() : {};
+          if (!response.ok) throw new Error(data.error || "请求失败：" + response.status);
+          return data;
+        }
+        function statusText(status) {
+          return ({ pending: "待审核", active: "已启用", disabled: "已停用", awaiting_review: "待确认", pending_payment: "待支付", paid: "已开通", published: "已发布", hidden: "已隐藏", cancelled: "已取消", refunded: "已退款", draft: "草稿", graded: "已批改", submitted: "已提交" })[status] || status || "待处理";
+        }
+        function money(cents) { return Math.round(Number(cents || 0) / 100) + "元"; }
+        function sumRows(rows) { return (rows || []).reduce(function (sum, item) { return sum + Number(item.count || 0); }, 0); }
+        function row(title, meta, action, label, danger) {
+          return '<div class="row"><div><strong>' + esc(title) + '</strong><small>' + esc(meta) + '</small></div>' + (action ? '<button type="button" data-action="' + esc(action) + '"' + (danger ? ' data-danger="true"' : '') + '>' + esc(label || "处理") + '</button>' : '<span class="status">已同步</span>') + '</div>';
+        }
+        function bar(label, value, total) {
+          const count = Number(value || 0);
+          const max = Math.max(Number(total || 0), count, 1);
+          const percent = Math.round(count / max * 100);
+          return '<div class="bar-row"><span>' + esc(label) + '</span><div class="bar-track"><i class="bar-fill" style="--w:' + percent + '%"></i></div><b>' + count + '</b></div>';
+        }
+        function shell(content) {
+          app.innerHTML =
+            '<header class="topbar"><div class="brand"><div class="logo">知</div><div><h1>知行研学后台控制中心</h1><p>独立网址后台：显示、监控、发布、审核平台内容和数据</p></div></div><div class="account"><span>' +
+            esc(currentUser ? currentUser.displayName + " · 管理员" : "未登录") +
+            '</span><button type="button" class="btn ghost" data-refresh>刷新</button><button type="button" class="btn ghost" data-go-app>返回前台</button>' +
+            (currentUser ? '<button type="button" class="btn danger" data-logout>退出</button>' : "") +
+            '</div></header>' + content;
+        }
+        function renderLogin(message) {
+          currentUser = null;
+          app.innerHTML =
+            '<section class="login"><h2>管理员登录</h2><p>这里是独立后台控制中心，不使用前台“五个板块”页面逻辑。管理员登录后可进行平台监控、内容发布、数据查看和审核处理。</p><form class="form" data-login><label>邮箱<input name="email" type="email" required value="demo.admin@zhixing.study"></label><label>密码<input name="password" type="password" required value="AdminZx#26D"></label><button class="btn primary" type="submit">登录后台</button></form><div class="status">' +
+            esc(message || "") +
+            '</div><button type="button" class="btn soft" data-go-app>返回前台</button></section>';
+        }
+        async function loadData() {
+          const results = await Promise.all([
+            api("/api/admin/overview"),
+            api("/api/admin/readiness"),
+            api("/api/admin/users"),
+            api("/api/admin/parent-links"),
+            api("/api/admin/posts"),
+            api("/api/course-orders"),
+            api("/api/admin/security").catch(function () { return { errors: [], audits: [], rateLimits: [], loginEvents24h: 0 }; }),
+            api("/api/courses"),
+            api("/api/study-bases").catch(function () { return { bases: [] }; })
+          ]);
+          cache = { overview: results[0], readiness: results[1], users: results[2], links: results[3], posts: results[4], orders: results[5], security: results[6], courses: results[7], bases: results[8] };
+        }
+        function nav(counts) {
+          counts = counts || {};
+          const items = [["overview", "总览"], ["monitor", "监控"], ["publish", "发布"], ["review", "审核"], ["data", "数据"]];
+          return '<nav class="nav">' + items.map(function (item) {
+            return '<button type="button" class="' + (activePane === item[0] ? "is-active" : "") + '" data-pane="' + item[0] + '"><span>' + item[1] + '</span><i>' + Number(counts[item[0]] || 0) + '</i></button>';
+          }).join("") + '</nav>';
+        }
+        function renderDashboard(nextPane) {
+          activePane = nextPane || activePane || "overview";
+          const users = cache.users.users || [];
+          const posts = cache.posts.posts || [];
+          const orders = cache.orders.orders || [];
+          const bases = cache.bases.bases || [];
+          const courses = cache.courses.courses || [];
+          const pendingUsers = users.filter(function (item) { return item.status === "pending"; });
+          const pendingLinks = (cache.links.links || []).filter(function (item) { return !item.approved_at; });
+          const pendingPosts = posts.filter(function (item) { return item.status === "pending"; });
+          const pendingOrders = orders.filter(function (item) { return !["paid", "cancelled", "refunded"].includes(item.status); });
+          const todoCount = pendingUsers.length + pendingLinks.length + pendingPosts.length + pendingOrders.length;
+          const userTotal = sumRows(cache.overview.users);
+          const postTotal = sumRows(cache.overview.posts);
+          const orderTotal = sumRows(cache.overview.orders);
+          const readinessBad = (cache.readiness.checks || []).filter(function (item) { return !item.ok; }).length;
+          const roleMax = Math.max.apply(null, [1].concat((cache.overview.users || []).map(function (item) { return Number(item.count || 0); })));
+          const postMax = Math.max.apply(null, [1].concat((cache.overview.posts || []).map(function (item) { return Number(item.count || 0); })));
+          const counts = { overview: todoCount, monitor: readinessBad + Number(cache.overview.errors24h || 0), publish: courses.length + bases.length, review: todoCount, data: users.length };
+          const courseOptions = courses.map(function (item) { return '<option value="' + esc(item.id) + '">' + esc(item.title) + '</option>'; }).join("");
+          const overview =
+            '<section class="hero"><div><h2>平台运营总览</h2><p>集中查看账号、课程、订单、社区内容、学习提交与异常状态。这里是单独后台，不进入前台学生/老师/家长端页面。</p></div><span class="badge">' + (cache.readiness.ready ? "系统可用" : "有配置待完善") + '</span></section>' +
+            '<section class="command"><div class="command-card"><strong>发布运营内容</strong><p>新建研学课程、课程资料、视频内容和研学基地。</p><button type="button" data-pane="publish">进入发布</button></div><div class="command-card"><strong>审核平台内容</strong><p>处理账号开通、订单确认、亲子绑定和社区动态。</p><button type="button" data-pane="review">进入审核</button></div><div class="command-card"><strong>监控运行状态</strong><p>查看接口、数据库、地图、AI、短信、邮件与安全记录。</p><button type="button" data-pane="monitor">查看监控</button></div></section>' +
+            '<section class="grid"><div class="stat" data-tone="ok"><b>' + userTotal + '</b><span>平台用户</span><small>学生 / 老师 / 家长 / 管理员</small></div><div class="stat"><b>' + Number(cache.overview.courses || 0) + '</b><span>研学课程</span><small>已建课程总数</small></div><div class="stat"><b>' + postTotal + '</b><span>社区内容</span><small>帖子发布与审核</small></div><div class="stat" data-tone="' + (todoCount ? "warn" : "ok") + '"><b>' + todoCount + '</b><span>待处理</span><small>审核、订单、绑定</small></div></section>' +
+            '<section class="two"><div class="card"><header><h3>待办队列</h3><small>需要管理员处理</small></header><div class="list">' +
+            (pendingUsers.concat(pendingOrders, pendingLinks, pendingPosts).slice(0, 8).map(function (item) {
+              if (item.email) return row((item.display_name || "用户") + " · " + (item.role || ""), item.email + " · " + statusText(item.status), "user:" + item.id, "通过");
+              if (item.course_title) return row((item.student_name || "学生") + " · " + item.course_title, statusText(item.status) + " · " + money(item.amount_cents), "order:" + item.id, "确认");
+              if (item.parent_id) return row((item.parent_name || "家长") + " → " + (item.student_name || "学生"), item.relation || "监护人", "link:" + item.parent_id + ":" + item.student_id, "通过");
+              return row("动态：" + (item.display_name || "用户"), String(item.content || "").slice(0, 80), "post:" + item.id, "发布");
+            }).join("") || '<div class="empty">暂无待处理事项。</div>') +
+            '</div></div><div class="card"><header><h3>最新订单</h3><small>课程报名与支付确认</small></header><div class="list">' +
+            (orders.slice(0, 8).map(function (item) { return row((item.student_name || "学生") + " · " + (item.course_title || "课程订单"), statusText(item.status) + " · " + money(item.amount_cents), item.status === "paid" ? "" : "order:" + item.id, "确认"); }).join("") || '<div class="empty">暂无订单。</div>') +
+            '</div></div></section><section class="two"><div class="card"><header><h3>账号角色分布</h3><small>真实用户表统计</small></header><div class="list">' +
+            ((cache.overview.users || []).map(function (item) { return bar(item.role || "未知", item.count, roleMax); }).join("") || '<div class="empty">暂无用户统计。</div>') +
+            '</div></div><div class="card"><header><h3>社区内容状态</h3><small>动态审核状态</small></header><div class="list">' +
+            ((cache.overview.posts || []).map(function (item) { return bar(statusText(item.status), item.count, postMax); }).join("") || '<div class="empty">暂无社区统计。</div>') +
+            '</div></div></section>';
+          const monitor =
+            '<section class="card"><header><h3>运行监控</h3><small>接口、数据库、地图、AI、短信、邮件、支付、对象存储</small></header><div class="health-grid">' +
+            (cache.readiness.checks || []).map(function (item) { return '<div class="health" data-ok="' + (item.ok ? "true" : "false") + '"><strong>' + esc(item.label) + '</strong><p>' + esc(item.detail) + '</p></div>'; }).join("") +
+            '</div></section><section class="two"><div class="card"><header><h3>最近异常</h3><small>前端错误上报</small></header><div class="list">' +
+            ((cache.security.errors || []).slice(0, 8).map(function (item) { return row(item.message || "异常记录", item.url || item.created_at || "", "", ""); }).join("") || '<div class="empty">暂无新的平台异常。</div>') +
+            '</div></div><div class="card"><header><h3>安全审计</h3><small>登录与后台操作记录</small></header><div class="list">' +
+            ((cache.security.audits || []).slice(0, 8).map(function (item) { return row(item.action || "操作记录", (item.target_type || "") + " · " + (item.created_at || ""), "", ""); }).join("") || '<div class="empty">暂无审计记录。</div>') +
+            '</div></div></section>';
+          const publish =
+            '<section class="card"><header><h3>发布中心</h3><small>新建课程、上传课程内容、新建研学基地</small></header><div class="two"><form class="form" data-create-course><label>课程名称<input name="title" required maxlength="100"></label><label>分类<input name="category" required maxlength="40"></label><label>唯一标识<input name="slug" required pattern="[a-z0-9-]{3,80}" placeholder="new-study-course"></label><label>价格（元）<input name="price" type="number" min="0" step="1" value="0"></label><label>简介<textarea name="description" maxlength="1000"></textarea></label><button class="btn primary" type="submit">新建并发布课程</button></form><form class="form" data-create-base><label>基地名称<input name="title" required maxlength="100"></label><label>城市<input name="city" required maxlength="60"></label><label>地址<input name="address" maxlength="160"></label><label>封面图片链接<input name="coverUrl" maxlength="500" placeholder="./assets/images/local/..."></label><label>介绍<textarea name="description" maxlength="1000"></textarea></label><button class="btn primary" type="submit">新建研学基地</button></form></div></section>' +
+            '<section class="card"><header><h3>上传课程内容</h3><small>资料、视频、任务、作业、测试</small></header><form class="form" data-create-content><label>课程<select name="courseId" required>' + courseOptions + '</select></label><label>类型<select name="type"><option value="material">资料</option><option value="video">视频</option><option value="task">任务</option><option value="homework">作业</option><option value="test">测试</option></select></label><label>标题<input name="title" required maxlength="120"></label><label>内容 / 链接<textarea name="bodyText" maxlength="2000"></textarea></label><button class="btn primary" type="submit">上传课程内容</button></form></section>';
+          const review =
+            '<section class="card"><header><h3>审核中心</h3><small>账号、订单、家长绑定、社区内容</small></header><div class="list">' +
+            (pendingUsers.map(function (item) { return row((item.display_name || "用户") + " · " + (item.role || ""), item.email + " · " + statusText(item.status), "user:" + item.id, "通过"); }).join("") || '<div class="empty">暂无待审核账号。</div>') +
+            pendingOrders.map(function (item) { return row((item.student_name || "学生") + " · " + (item.course_title || "课程订单"), statusText(item.status) + " · " + money(item.amount_cents), "order:" + item.id, "确认"); }).join("") +
+            pendingLinks.map(function (item) { return row((item.parent_name || "家长") + " → " + (item.student_name || "学生"), item.relation || "监护人", "link:" + item.parent_id + ":" + item.student_id, "通过"); }).join("") +
+            pendingPosts.map(function (item) { return row("动态：" + (item.display_name || "用户"), String(item.content || "").slice(0, 90), "post:" + item.id, "发布"); }).join("") +
+            '</div></section>';
+          const data =
+            '<section class="two"><div class="card"><header><h3>课程数据</h3><small>已发布课程</small></header><table class="table"><thead><tr><th>课程</th><th>分类</th><th>状态</th></tr></thead><tbody>' +
+            (courses.slice(0, 20).map(function (item) { return '<tr><td>' + esc(item.title) + '</td><td>' + esc(item.category || "") + '</td><td>' + esc(statusText(item.status)) + '</td></tr>'; }).join("") || '<tr><td colspan="3">暂无课程</td></tr>') +
+            '</tbody></table></div><div class="card"><header><h3>基地数据</h3><small>研学基地</small></header><table class="table"><thead><tr><th>基地</th><th>城市</th><th>状态</th></tr></thead><tbody>' +
+            (bases.slice(0, 20).map(function (item) { return '<tr><td>' + esc(item.title) + '</td><td>' + esc(item.city || "") + '</td><td>' + esc(statusText(item.status)) + '</td></tr>'; }).join("") || '<tr><td colspan="3">暂无基地</td></tr>') +
+            '</tbody></table></div></section><section class="card"><header><h3>用户数据</h3><small>最近 500 个账号</small></header><table class="table"><thead><tr><th>姓名</th><th>邮箱</th><th>身份</th><th>状态</th></tr></thead><tbody>' +
+            users.slice(0, 40).map(function (item) { return '<tr><td>' + esc(item.display_name || "") + '</td><td>' + esc(item.email || "") + '</td><td>' + esc(item.role || "") + '</td><td>' + esc(statusText(item.status)) + '</td></tr>'; }).join("") +
+            '</tbody></table></section>';
+          const panes = { overview, monitor, publish, review, data };
+          shell('<div class="layout">' + nav(counts) + '<main class="main">' + panes[activePane] + '<div class="status" id="status">后台数据已同步。订单总数 ' + orderTotal + '，24小时异常 ' + Number(cache.overview.errors24h || 0) + '。</div></main></div>');
+        }
+        async function refresh(pane) {
+          if (pane) activePane = pane;
+          shell('<div class="layout">' + nav() + '<main class="main"><section class="card"><h3>正在同步后台数据...</h3></section></main></div>');
+          await loadData();
+          renderDashboard(activePane);
+        }
+        async function init() {
+          try {
+            const data = await api("/api/auth/me");
+            if (!data.user || data.user.role !== "admin") return renderLogin(data.user ? "当前账号不是管理员，请使用管理员账号登录后台。" : "");
+            currentUser = data.user;
+            await refresh("overview");
+          } catch (_error) {
+            renderLogin();
+          }
+        }
+        document.addEventListener("click", async function (event) {
+          const goApp = event.target.closest("[data-go-app]");
+          if (goApp) { location.href = "./index.html#/home"; return; }
+          const refreshButton = event.target.closest("[data-refresh]");
+          if (refreshButton && currentUser) { await refresh(activePane); return; }
+          const logout = event.target.closest("[data-logout]");
+          if (logout) {
+            await api("/api/auth/logout", { method: "POST" }).catch(function () {});
+            renderLogin("已退出后台。");
+            return;
+          }
+          const pane = event.target.closest("[data-pane]");
+          if (pane) { renderDashboard(pane.dataset.pane); return; }
+          const actionButton = event.target.closest("[data-action]");
+          if (!actionButton) return;
+          const action = actionButton.dataset.action || "";
+          const status = document.getElementById("status");
+          actionButton.disabled = true;
+          actionButton.textContent = "处理中";
+          try {
+            if (action.startsWith("user:")) await api("/api/admin/users/" + action.slice(5) + "/status", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ status: "active" }) });
+            else if (action.startsWith("order:")) await api("/api/admin/course-orders/" + action.slice(6) + "/status", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ status: "paid" }) });
+            else if (action.startsWith("post:")) await api("/api/admin/posts/" + action.slice(5) + "/status", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ status: "published" }) });
+            else if (action.startsWith("link:")) { const parts = action.split(":"); await api("/api/admin/parent-links/" + parts[1] + "/" + parts[2] + "/approve", { method: "PATCH" }); }
+            await refresh("review");
+          } catch (error) {
+            if (status) status.textContent = error.message || "处理失败";
+            actionButton.disabled = false;
+          }
+        });
+        document.addEventListener("submit", async function (event) {
+          const form = event.target.closest("form");
+          if (!form) return;
+          event.preventDefault();
+          const submit = form.querySelector("button[type='submit']");
+          const status = document.getElementById("status") || form.parentElement.querySelector(".status");
+          if (submit) submit.disabled = true;
+          try {
+            const values = Object.fromEntries(new FormData(form));
+            if (form.matches("[data-login]")) {
+              const data = await api("/api/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(values) });
+              if (!data.user || data.user.role !== "admin") throw new Error("请使用管理员账号登录后台。");
+              currentUser = data.user;
+              await refresh("overview");
+              return;
+            }
+            if (form.matches("[data-create-course]")) await api("/api/courses", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ title: values.title, category: values.category, slug: values.slug, description: values.description, priceCents: Math.round(Number(values.price || 0) * 100), status: "published" }) });
+            else if (form.matches("[data-create-content]")) await api("/api/courses/" + values.courseId + "/contents", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: values.type, title: values.title, body: { text: values.bodyText || "" }, published: true }) });
+            else if (form.matches("[data-create-base]")) await api("/api/study-bases", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ title: values.title, city: values.city, address: values.address, description: values.description, coverUrl: values.coverUrl || "", status: "published" }) });
+            form.reset();
+            await refresh("publish");
+          } catch (error) {
+            if (status) status.textContent = error.message || "提交失败";
+          } finally {
+            if (submit) submit.disabled = false;
+          }
+        });
+        init();
+      })();
+    </script>
+  </body>
+</html>

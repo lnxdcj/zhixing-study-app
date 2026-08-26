@@ -1,0 +1,17 @@
+{
+  "name": "知行研学",
+  "short_name": "知行研学",
+  "description": "探索世界 · 成就自我",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color":="#10b981",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
