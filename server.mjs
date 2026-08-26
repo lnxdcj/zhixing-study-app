@@ -58,26 +58,46 @@ async function handleAiGuide(request, response) {
   }
 }
 
-const server = http.createServer(async (request, response) => {
-  const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
-  if (request.method === "POST" && url.pathname === "/api/ai-guide") return handleAiGuide(request, response);
-  if (request.method !== "GET" && request.method !== "HEAD") return json(response, 405, { error: "Method not allowed" });
-  const requested = url.pathname === "/" ? "/index.html" : decodeURIComponent(url.pathname);
-  const filePath = path.resolve(root, "." + requested);
-  if (!filePath.startsWith(root)) return json(response, 403, { error: "Forbidden" });
-  try {
-    const data = await fs.readFile(filePath);
-    response.writeHead(200, { "Content-Type": mimeTypes[path.extname(filePath).toLowerCase()] || "application/octet-stream" });
-    if (request.method === "HEAD") return response.end();
-    response.end(data);
-  } catch (_error) {
-    const index = await fs.readFile(path.join(root, "index.html"));
-    response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-    response.end(index);
-  }
-});
+export function createServer() {
+  return http.createServer(async (request, response) => {
+    const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
+    if (request.method === "POST" && url.pathname === "/api/ai-guide") return handleAiGuide(request, response);
+    if (request.method !== "GET" && request.method !== "HEAD") return json(response, 405, { error: "Method not allowed" });
+    const requested = url.pathname === "/" ? "/index.html" : decodeURIComponent(url.pathname);
+    const filePath = path.resolve(root, "." + requested);
+    if (!filePath.startsWith(root)) return json(response, 403, { error: "Forbidden" });
+    try {
+      const data = await fs.readFile(filePath);
+      response.writeHead(200, { "Content-Type": mimeTypes[path.extname(filePath).toLowerCase()] || "application/octet-stream" });
+      if (request.method === "HEAD") return response.end();
+      response.end(data);
+    } catch (_error) {
+      const index = await fs.readFile(path.join(root, "index.html"));
+      response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+      response.end(index);
+    }
+  });
+}
 
-server.listen(port, "127.0.0.1", () => {
-  console.log(`Zhixing study app: http://127.0.0.1:${port}`);
-  console.log(apiKey ? `AI guide enabled with ${model}` : "AI guide running in local fallback mode (set OPENAI_API_KEY for online AI)");
-});
+export function startServer(options = {}) {
+  const server = createServer();
+  const listenPort = options.port ?? port;
+  const host = options.host || "127.0.0.1";
+
+  return new Promise((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(listenPort, host, () => {
+      server.off("error", reject);
+      if (!options.silent) {
+        const address = server.address();
+        console.log(`Zhixing study app: http://${host}:${address.port}`);
+        console.log(apiKey ? `AI guide enabled with ${model}` : "AI guide running in local fallback mode (set OPENAI_API_KEY for online AI)");
+      }
+      resolve(server);
+    });
+  });
+}
+
+if (path.resolve(process.argv[1] || "") === fileURLToPath(import.meta.url)) {
+  await startServer();
+}

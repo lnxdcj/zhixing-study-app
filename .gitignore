@@ -18,6 +18,7 @@ uploads/
 # Local backups and generated packages
 backup-before-recovery-*/
 release/
+dist/
 *.zip
 theme-video-test.png
 
