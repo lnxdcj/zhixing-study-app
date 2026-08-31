@@ -1,0 +1,57 @@
+name: Build mobile apps
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+permissions: { contents: write }
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Prepare web assets
+        shell: bash
+        run: |
+          mkdir -p mobile/web
+          cp index.html course-designer.html download.html admin.html privacy.html manifest.json favicon.png favicon.svg sw.js mobile/web/
+          cp -R assets mobile/web/assets
+      - name: Install Capacitor
+        working-directory: mobile
+        run: npm install
+      - name: Add and sync Android
+        working-directory: mobile
+        run: npx cap add android && npx cap sync android
+      - name: Build APK
+        working-directory: mobile/android
+        run: ./gradlew assembleDebug
+      - name: Rename APK
+        shell: bash
+        run: cp mobile/android/app/build/outputs/apk/debug/app-debug.apk release-Zhixing-Study-Android.apk
+      - uses: actions/upload-artifact@v4
+        with: { name: zhixing-android, path: release-Zhixing-Study-Android.apk }
+      - if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with: { tag_name: '${{ github.ref_name }}', files: release-Zhixing-Study-Android.apk }
+        env: { GITHUB_TOKEN: '${{ github.token }}' }
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Prepare web assets
+        shell: bash
+        run: |
+          mkdir -p mobile/web
+          cp index.html course-designer.html download.html admin.html privacy.html manifest.json favicon.png favicon.svg sw.js mobile/web/
+          cp -R assets mobile/web/assets
+      - name: Install and add iOS platform
+        working-directory: mobile
+        run: npm install && npx cap add ios && npx cap sync ios
+      - name: Build unsigned iOS archive
+        working-directory: mobile
+        run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release -sdk iphoneos -archivePath App.xcarchive archive CODE_SIGNING_ALLOWED=NO
+      - uses: actions/upload-artifact@v4
+        with: { name: zhixing-ios-unsigned, path: mobile/App.xcarchive }
