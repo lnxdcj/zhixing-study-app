@@ -1,0 +1,8 @@
+{
+  "name": "zhixing-study-mobile",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": { "sync": "cap sync", "open:android": "cap open android", "open:ios": "cap open ios" },
+  "dependencies": { "@capacitor/android": "^7.4.3", "@capacitor/core": "^7.4.3", "@capacitor/ios": "^7.4.3" },
+  "devDependencies": { "@capacitor/cli": "^7.4.3" }
+}
