@@ -5,6 +5,7 @@ import test from "node:test";
 
 const client = await readFile(new URL("../assets/backend-client.js", import.meta.url), "utf8");
 const overrides = await readFile(new URL("../assets/media-overrides.js", import.meta.url), "utf8");
+const indexHtml = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const api = await readFile(new URL("../netlify/functions/api.mjs", import.meta.url), "utf8");
 const demoSeed = await readFile(new URL("../netlify/database/migrations/0006_demo_showcase_accounts.sql", import.meta.url), "utf8");
 const adminSeed = await readFile(new URL("../netlify/database/migrations/0007_demo_admin_account.sql", import.meta.url), "utf8");
@@ -241,6 +242,18 @@ test("learning map keeps the real Autonavi tile map", () => {
   assert.match(overrides, /realMapProvider = "autonavi"/);
   assert.match(overrides, /function markAmap/);
   assert.match(overrides, /const amapStudyPlaces/);
+});
+
+test("AI guide cards open with mouse, touch and keyboard input", () => {
+  assert.match(overrides, /function findAiGuideEntry/);
+  assert.match(overrides, /document\.addEventListener\("pointerup"/);
+  assert.match(overrides, /event\.pointerType !== "touch" && event\.pointerType !== "pen"/);
+  assert.match(overrides, /event\.key === "Enter" \|\| event\.key === " "/);
+  assert.match(overrides, /openAiGuideOnce\(\)/);
+  assert.match(overrides, /function restoreAiGuideModal\(\)/);
+  assert.match(overrides, /data-protected-floating-surface/);
+  assert.match(overrides, /restoreAiGuideModal\(\);/);
+  assert.match(indexHtml, /media-overrides\.js\?v=190-ai-guide-visible/);
 });
 
 test("course designer supports students, adults, universities and cadre education", () => {

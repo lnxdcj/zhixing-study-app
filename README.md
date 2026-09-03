@@ -4,8 +4,9 @@
 
 ## 在线使用
 
-- 生产网址：<https://zhixing-study-3831353544.netlify.app/index.html?v=179-blue24>
+- 下载中心网址：<https://frabjous-faun-853457.netlify.app/download.html>
 - 原二维码继续有效：`assets/qr/zhixing-production-url.png`
+- 新下载中心：`/download.html`，可选择 Windows、Apple、安卓或网页版
 
 本次 GitHub 下载版不会改变生产网址或二维码。
 
@@ -20,7 +21,11 @@
 
 ## 下载运行
 
-在 GitHub 仓库右侧进入 **Releases**，下载最新的 `zhixing-study-app-v*.zip`，解压后运行：
+在 GitHub 仓库右侧进入 **Releases**，普通用户下载 `Zhixing-Study-Setup-*.zip`，解压后只会得到一个 EXE 安装程序，双击后按照安装向导完成安装。安装程序会创建桌面快捷方式和开始菜单入口。
+
+ZIP 是开发者源码包，不是普通用户安装包。
+
+需要使用源码运行时：
 
 ### Windows
 

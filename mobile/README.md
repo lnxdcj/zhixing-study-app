@@ -1,5 +1,15 @@
 # 知行研学移动端
 
-Capacitor 原生壳工程。GitHub Actions 会在推送 `v*` 标签时构建 Android APK，并构建 iOS 未签名归档。
+这是 Capacitor 移动端工程。网页资源会完整打包进应用，不是浏览器快捷方式。GitHub Actions 会在推送 `v*` 标签时构建可安装的 Android APK，并构建 iOS 未签名归档。
 
-Android 需要签名密钥才能发布正式 APK；iOS 必须使用 Apple Developer 证书并通过 TestFlight/App Store，不能直接分发未签名 IPA。
+本地准备移动端资源：
+
+```bash
+cd mobile
+npm install
+npm run prepare:web
+npx cap add android
+npx cap sync android
+```
+
+Android 工作流当前生成由 Android 调试证书签名、可直接安装测试的 APK。正式上架前应配置长期保存的发布签名密钥。iOS 必须使用 Apple Developer 证书并通过 TestFlight 或 App Store 分发，不能直接安装未签名 IPA。

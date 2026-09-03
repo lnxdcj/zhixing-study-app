@@ -914,6 +914,29 @@
     }
   }
 
+  function stabilizeRecommendationCarousel(root) {
+    const heading = Array.from(document.querySelectorAll("h2")).find(function (item) { return item.textContent.trim() === "AI为你推荐"; });
+    const section = heading && heading.closest("section");
+    if (!section) return;
+    const candidates = Array.from(section.children).filter(function (item) { return item.querySelector && item.querySelector("img"); });
+    const row = candidates[0];
+    if (!row) return;
+    row.style.display = "flex";
+    row.style.flexWrap = "nowrap";
+    row.style.gap = "12px";
+    row.style.overflowX = "auto";
+    row.style.overflowY = "hidden";
+    row.style.scrollSnapType = "x mandatory";
+    row.style.scrollbarWidth = "none";
+    Array.from(row.children).forEach(function (card) {
+      card.style.flex = "0 0 min(256px, calc(100vw - 48px))";
+      card.style.width = "min(256px, calc(100vw - 48px))";
+      card.style.minWidth = "min(256px, calc(100vw - 48px))";
+      card.style.scrollSnapAlign = "start";
+      card.style.overflow = "hidden";
+    });
+  }
+
   function bindThemeCategories(root) {
     const names = Object.keys(themeVideos);
     const heading = Array.from(document.querySelectorAll("h2")).find(function (item) {
@@ -1886,6 +1909,7 @@
     document.querySelector(".ai-guide-modal")?.remove();
     const modal = document.createElement("div");
     modal.className = "ai-guide-modal";
+    modal.dataset.protectedFloatingSurface = "true";
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
     modal.setAttribute("aria-label", "AI研学导游");
@@ -1930,22 +1954,60 @@
     input.focus();
   }
 
+  let lastAiGuideOpenAt = 0;
+
+  function openAiGuideOnce() {
+    const now = Date.now();
+    if (now - lastAiGuideOpenAt < 400) return;
+    lastAiGuideOpenAt = now;
+    showAiGuide();
+  }
+
+  function findAiGuideEntry(target) {
+    const entry = target?.closest?.("button,[role='button'],.cursor-pointer,[aria-label='打开AI研学导游']");
+    if (!entry || entry.dataset.courseDesignerEntry === "true") return null;
+    const text = entry.textContent.trim();
+    if (text.includes("AI智能规划")) return null;
+    return /AI\s*智能\s*导游[·。\s]*小知|AI\s*导游[·。\s]*小知|AI助手/.test(text) ? entry : null;
+  }
+
   function bindAiGuide(root) {
+    if (!document.documentElement.dataset.aiGuideGlobalBound) {
+      document.documentElement.dataset.aiGuideGlobalBound = "true";
+      document.addEventListener("click", function (event) {
+        if (!findAiGuideEntry(event.target)) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        openAiGuideOnce();
+      }, true);
+      document.addEventListener("pointerup", function (event) {
+        if (event.pointerType !== "touch" && event.pointerType !== "pen") return;
+        if (!findAiGuideEntry(event.target)) return;
+        event.preventDefault();
+        openAiGuideOnce();
+      }, true);
+    }
     const candidates = Array.from(root.querySelectorAll ? root.querySelectorAll("button, [role='button'], .cursor-pointer") : []);
     candidates.forEach(function (item) {
       const text = item.textContent.trim();
       if (text !== "AI助手" && !text.includes("AI智能规划") && !/AI.*导游.*小知/.test(text)) return;
       if (item.dataset.aiGuideBound) return;
       item.dataset.aiGuideBound = "true";
+      const isCourseDesigner = text.includes("AI智能规划");
+      if (isCourseDesigner) item.dataset.courseDesignerEntry = "true";
       if (item.tagName !== "BUTTON") {
         item.setAttribute("role", "button");
         item.setAttribute("tabindex", "0");
       }
-      item.setAttribute("aria-label", "打开AI研学导游");
+      item.setAttribute("aria-label", isCourseDesigner ? "打开课程设计器" : "打开AI研学导游");
       const open = function (event) {
         event.preventDefault();
         event.stopPropagation();
-        showAiGuide();
+        if (isCourseDesigner) {
+          window.location.assign("./course-designer.html");
+        } else {
+          openAiGuideOnce();
+        }
       };
       item.addEventListener("click", open, true);
       item.addEventListener("keydown", function (event) {
@@ -4495,7 +4557,16 @@
   }
 
   function isProtectedFloatingSurface(node) {
-    return Boolean(node?.closest?.(".theme-package-page,.lesson-video-modal,.backend-modal,.popular-projects-page,.backend-course-detail"));
+    return Boolean(node?.closest?.(".ai-guide-modal,[data-protected-floating-surface='true'],.theme-package-page,.lesson-video-modal,.backend-modal,.popular-projects-page,.backend-course-detail"));
+  }
+
+  function restoreAiGuideModal() {
+    const modal = document.querySelector(".ai-guide-modal");
+    if (!modal) return;
+    modal.style.removeProperty("display");
+    modal.style.removeProperty("visibility");
+    modal.style.removeProperty("opacity");
+    modal.removeAttribute("aria-hidden");
   }
 
   function hideGuestPrivateBits(root) {
@@ -8012,6 +8083,7 @@
       toast.setAttribute("aria-hidden", "true");
     };
     document.querySelectorAll('[role="alert"], div[class*="bg-black"], div[class*="toast"], div[class*="Toast"], div[class*="fixed"], div[class*="absolute"]').forEach(function (toast) {
+      if (toast.closest?.(".ai-guide-modal,[data-protected-floating-surface='true']")) return;
       if (toast.closest?.(".backend-account-button,.stable-auth-float") || toast.dataset.stableAccountFloat === "true") return;
       const text = (toast.textContent || "").replace(/\s+/g, "");
       const toastShape = /fixed|absolute|toast|Toast|bg-black|alert/i.test(String(toast.className || "") + " " + (toast.getAttribute("role") || ""));
@@ -8230,6 +8302,7 @@
       markAmap(root.querySelectorAll ? root : document);
       replaceDemoVideo(root.querySelectorAll ? root : document);
       syncHomeTabs(root.querySelectorAll ? root : document);
+      stabilizeRecommendationCarousel(root.querySelectorAll ? root : document);
       bindThemeCategories(root.querySelectorAll ? root : document);
       bindThemeCategoriesFallback(root.querySelectorAll ? root : document);
       bindAiGuide(root.querySelectorAll ? root : document);
@@ -8279,6 +8352,7 @@
       syncUniversalDetailBack();
       normalizeBackendAccountModal();
       restoreProfileInteractivity();
+      restoreAiGuideModal();
       removeTeacherRoleExplanationPanels();
       renderPopularProjectsPage();
       scrollRouteToTop();
@@ -8319,10 +8393,6 @@
   });
 
   function start() {
-    if ("serviceWorker" in navigator) {
-      try { navigator.serviceWorker.register = function () { return Promise.resolve({ unregister: function () { return Promise.resolve(true); } }); }; } catch (_error) {}
-      navigator.serviceWorker.getRegistrations().then(function (registrations) { registrations.forEach(function (registration) { registration.unregister(); }); }).catch(function () {});
-    }
     processImages(document);
     stabilizeMobileMedia(document);
     keepDongguiTeamPostImagesStable();

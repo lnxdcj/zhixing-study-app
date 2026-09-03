@@ -2,8 +2,9 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="icon" type="image/png" href="./favicon.png?v=2" />
     <link rel="manifest" href="./manifest.json" />
+    <link rel="preload" as="image" href="./assets/branding/zhixing-app-cover.png?v=2" />
     <link rel="preconnect" href="https://upload.wikimedia.org" crossorigin />
     <link rel="preconnect" href="https://commons.wikimedia.org" crossorigin />
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
@@ -20,11 +21,6 @@
     <script>
       (function () {
         try {
-          if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function (items) {
-              items.forEach(function (item) { item.unregister(); });
-            }).catch(function () {});
-          }
           if ("caches" in window) {
             caches.keys().then(function (keys) {
               keys.forEach(function (key) { caches.delete(key); });
@@ -37,9 +33,13 @@
     <link rel="stylesheet" href="./assets/style-xxeSKkYS.css">
     <link rel="stylesheet" href="./assets/backend-client.css?v=8">
     <style>
+      /* Keep the app shell below Android/iOS status-bar icons, including WebViews that do not expose safe-area env vars. */
+      @media (max-width: 480px) {
+        #root { padding-top: max(24px, env(safe-area-inset-top)); box-sizing: border-box; }
+      }
       #stable-auth-float {
         position: fixed !important;
-        top: calc(10px + env(safe-area-inset-top)) !important;
+        top: max(46px, calc(22px + env(safe-area-inset-top))) !important;
         right: max(12px, calc(50% - 228px)) !important;
         z-index: 2147483600 !important;
         display: inline-flex !important;
@@ -743,12 +743,12 @@
       .boot-loader {
         position: fixed;
         inset: 0;
-        z-index: 10080;
+        z-index: 2147483646;
         display: grid;
         place-items: center;
         overflow: hidden;
-        background: #050816;
-        transition: opacity .28s ease, visibility .28s ease;
+        background: #fff;
+        transition: opacity .32s ease, visibility .32s ease;
       }
       #root { min-height: 100vh; background: #eefbf1; }
       .boot-loader::before,
@@ -757,7 +757,7 @@
         top: 0;
         bottom: 0;
         width: max(0px, calc((100vw - min(100vw, 480px)) / 2));
-        background: #050816;
+        background: #fff;
         content: "";
       }
       .boot-loader::before { left: 0; }
@@ -771,74 +771,38 @@
         justify-items: center;
         width: min(100vw, 480px);
         min-height: 100vh;
-        padding: 14vh 28px 12vh;
-        background: #eefbf1;
-        background-image: radial-gradient(circle at 50% 17%, rgba(16,185,129,.06), transparent 22%), radial-gradient(circle at 50% 72%, rgba(16,185,129,.05), transparent 26%);
-      }
-      .boot-loader-badge {
-        display: grid;
-        place-items: center;
-        width: 144px;
-        height: 144px;
-        border-radius: 50%;
+        padding: max(32px, 6vh) 24px max(28px, 5vh);
         background: #fff;
-        box-shadow: 0 10px 24px rgba(15,23,42,.10);
       }
-      .boot-loader-badge svg {
-        width: 64px;
-        height: 64px;
-        stroke: #16a34a;
+      .boot-loader-cover {
+        display: block;
+        width: min(88vw, 420px);
+        max-width: 100%;
+        max-height: min(68vh, 520px);
+        object-fit: contain;
       }
-      .boot-loader-title {
-        margin-top: 26px;
-        color: #0f9f67;
-        font-size: 30px;
-        font-weight: 700;
-        line-height: 1.2;
-        letter-spacing: 0;
-      }
-      .boot-loader-subtitle {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-top: 14px;
-        color: #64748b;
-        font-size: 15px;
-        letter-spacing: 0;
-      }
-      .boot-loader-subtitle svg { width: 16px; height: 16px; flex: 0 0 16px; stroke: #64748b; }
       .boot-loader-progress {
-        width: min(100%, 302px);
-        margin-top: 70px;
+        width: min(72%, 260px);
+        margin-top: clamp(20px, 4vh, 36px);
       }
       .boot-loader-track {
-        height: 10px;
+        height: 5px;
         overflow: hidden;
         border-radius: 999px;
-        background: #d8dbdf;
+        background: #e5e7eb;
       }
       .boot-loader-fill {
         display: block;
         width: 100%;
         height: 100%;
         border-radius: inherit;
-        background: linear-gradient(90deg, #10b981 0%, #16a34a 100%);
-        animation: boot-load 1.5s ease-in-out infinite;
+        background: linear-gradient(90deg, #0785bf 0%, #02a86b 52%, #ffd500 100%);
+        animation: boot-load 1.2s ease-in-out infinite;
       }
       .boot-loader-text {
-        margin-top: 12px;
-        color: #9ca3af;
-        font-size: 15px;
-        text-align: center;
-        letter-spacing: 0;
-      }
-      .boot-loader-footer {
-        position: absolute;
-        right: 0;
-        bottom: 58px;
-        left: 0;
-        color: rgba(255,255,255,.12);
-        font-size: 14px;
+        margin-top: 10px;
+        color: #94a3b8;
+        font-size: 13px;
         text-align: center;
         letter-spacing: 0;
       }
@@ -850,24 +814,11 @@
     <button id="stable-auth-float" class="stable-auth-float" type="button" data-stable-account-float="true">登录 / 注册</button>
     <div id="boot-loader" class="boot-loader" aria-hidden="true">
       <div class="boot-loader-panel">
-        <div class="boot-loader-badge" aria-hidden="true">
-          <svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
-            <path d="M14 18h12c4 0 6 3 6 7v24c0-4-2-7-6-7H14V18Z" />
-            <path d="M50 18H38c-4 0-6 3-6 7v24c0-4 2-7 6-7h12V18Z" />
-            <path d="M32 25v24" />
-            <path d="M29 49h6" />
-          </svg>
-        </div>
-        <strong class="boot-loader-title">知行研学</strong>
-        <div class="boot-loader-subtitle">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11Z" /><circle cx="12" cy="10" r="2.4" /></svg>
-          <span>读万卷书 · 行万里路</span>
-        </div>
+        <img class="boot-loader-cover" src="./assets/branding/zhixing-app-cover.png?v=2" alt="知行研学" />
         <div class="boot-loader-progress" aria-hidden="true">
           <div class="boot-loader-track"><i class="boot-loader-fill"></i></div>
           <div class="boot-loader-text">正在进入...</div>
         </div>
-        <div class="boot-loader-footer">智慧研学 · 成长同行</div>
       </div>
     </div>
   <script>
@@ -883,9 +834,9 @@
         setTimeout(function () { loader.remove(); }, 180);
       }
       if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", function () { setTimeout(closeBootLoader, 650); }, { once: true });
+        document.addEventListener("DOMContentLoaded", function () { setTimeout(closeBootLoader, 1200); }, { once: true });
       } else {
-        setTimeout(closeBootLoader, 650);
+        setTimeout(closeBootLoader, 1200);
       }
       setTimeout(function () {
         if (!loaderClosed && loaderText) loaderText.textContent = "正在加载资源...";
@@ -894,11 +845,20 @@
         if (loaderClosed) return;
         if (loaderText) loaderText.textContent = "资源已准备好...";
         closeBootLoader();
-      }, 1000);
+      }, 1800);
     })();
   </script>
   <script type="text/javascript" defer src="./assets/index-D-7AIxjC.js?v=83"></script>
   <script type="text/javascript" defer src="./assets/backend-client.js?v=25-progress-rate"></script>
-  <script type="text/javascript" defer src="./assets/media-overrides.js?v=185-diverse-course-designer"></script>
+  <script>
+    document.addEventListener("click", function (event) {
+      const target = event.target.closest("button,[role='button'],.cursor-pointer");
+      if (!target || !(target.textContent.includes("AI智能规划") || target.textContent.trim().startsWith("定制方案"))) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      window.location.href = "./course-designer.html";
+    }, true);
+  </script>
+  <script type="text/javascript" defer src="./assets/media-overrides.js?v=190-ai-guide-visible"></script>
 </body>
 </html>

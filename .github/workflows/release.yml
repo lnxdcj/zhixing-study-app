@@ -16,7 +16,40 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Create downloadable ZIP
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Install Wine for Windows packaging
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y wine64 wine32
+
+      - name: Build Windows installer
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: pnpm exec electron-builder --win nsis --x64 --publish never
+
+      - name: Package installer ZIP
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          APP_VERSION=$(node -p "require('./package.json').version")
+          cd release/desktop
+          zip -j "../Zhixing-Study-Setup-${APP_VERSION}.zip" "Zhixing-Study-Setup-${APP_VERSION}.exe"
+
+      - name: Create source ZIP
         shell: bash
         run: |
           VERSION="${GITHUB_REF_NAME:-snapshot}"
@@ -31,11 +64,17 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: zhixing-study-app-${{ github.ref_name }}
-          path: release/*.zip
+          path: |
+            release/*.zip
+            release/desktop/*.exe
 
-      - name: Publish GitHub Release
+      - name: Upload installer to GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: |
+            release/desktop/*.exe
+            release/*.zip
         env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: gh release create "${GITHUB_REF_NAME}" release/*.zip --generate-notes --verify-tag
+          GITHUB_TOKEN: ${{ github.token }}

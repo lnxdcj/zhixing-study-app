@@ -4,6 +4,7 @@ node_modules/
 .netlify/
 .agents/
 .codex/
+.android-build-tools/
 
 # Local configuration and runtime data
 .env
@@ -18,6 +19,11 @@ uploads/
 # Local backups and generated packages
 backup-before-recovery-*/
 release/
+dist/
+mobile/web/
+mobile/android/
+mobile/ios/
+mobile/node_modules/
 *.zip
 theme-video-test.png
 
