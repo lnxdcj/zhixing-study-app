@@ -27,7 +27,7 @@ jobs:
         run: node scripts/configure-android.mjs
       - name: Build APK
         working-directory: mobile/android
-        run: ./gradlew assembleDebug
+        run: chmod +x gradlew && ./gradlew assembleDebug --no-daemon
       - name: Verify installable APK contains the complete app
         shell: bash
         run: |

@@ -1,5 +1,10 @@
 # 更新记录
 
+## 1.3.3
+
+- 修复 Android GitHub Actions 在 Linux runner 上执行 Gradle 的权限问题。
+- 统一发布版本号并重新触发 Android 完整 APK 构建。
+
 ## 1.3.2
 
 - 发布完整 Android APK：内置全部应用资源，可从手机桌面独立启动
