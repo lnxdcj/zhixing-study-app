@@ -4,7 +4,7 @@
 
 ## 在线使用
 
-- 下载中心网址：<https://frabjous-faun-853457.netlify.app/download.html>
+- 下载中心网址：<https://zhixing-study-zhaoziyuan.netlify.app/download.html>
 - 原二维码继续有效：`assets/qr/zhixing-production-url.png`
 - 新下载中心：`/download.html`，可选择 Windows、Apple、安卓或网页版
 
