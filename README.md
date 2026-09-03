@@ -5,10 +5,10 @@
 ## 在线使用
 
 - 下载中心网址：<https://zhixing-study-zhaoziyuan.netlify.app/download.html>
-- 原二维码继续有效：`assets/qr/zhixing-production-url.png`
+- 当前生产站点：`zhixing-study-zhaoziyuan.netlify.app`；旧域名二维码不再作为下载入口。
 - 新下载中心：`/download.html`，可选择 Windows、Apple、安卓或网页版
 
-本次 GitHub 下载版不会改变生产网址或二维码。
+发布前运行 `npm run build:site`，只上传 `dist/site`；不要将仓库根目录作为静态发布目录。后端函数仍从 `netlify/functions` 构建。
 
 ## 核心能力
 
