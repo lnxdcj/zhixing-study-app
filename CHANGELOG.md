@@ -1,5 +1,11 @@
 # 更新记录
 
+## Android 1.3.4
+
+- 将详细智能规划打包到安卓应用，支持离线生成12章执行方案。
+- 内置逐日日程、活动任务卡、分工、预算、评价与风险备选。
+- 本次仅更新 Android 安装包，Windows 下载版本仍为 1.3.3。
+
 ## 1.3.3
 
 - 修复 Android GitHub Actions 在 Linux runner 上执行 Gradle 的权限问题。

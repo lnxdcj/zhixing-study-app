@@ -26,3 +26,9 @@ test("download page discloses mobile distribution limitations", () => {
   assert.ok(page.includes("Apple 版本尚未开放安装"));
   assert.ok(!page.includes('<img src="./assets/qr/zhixing-download-url.png"'));
 });
+
+test("Android download label and cache key match the mobile version", async () => {
+  const mobile = JSON.parse(await readFile(new URL("mobile/package.json", root), "utf8"));
+  assert.ok(page.includes(`安卓手机版 ${mobile.version}`));
+  assert.ok(page.includes(`zhixing-study-android.apk?v=${mobile.version}`));
+});
