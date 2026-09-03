@@ -851,6 +851,11 @@
   <script type="text/javascript" defer src="./assets/index-D-7AIxjC.js?v=83"></script>
   <script type="text/javascript" defer src="./assets/backend-client.js?v=25-progress-rate"></script>
   <script>
+    function openDetailedPlannerRoute() {
+      if (window.location.hash === "#/ai-planner") window.location.replace("./course-designer.html");
+    }
+    openDetailedPlannerRoute();
+    window.addEventListener("hashchange", openDetailedPlannerRoute);
     document.addEventListener("click", function (event) {
       const target = event.target.closest("button,[role='button'],.cursor-pointer");
       if (!target || !(target.textContent.includes("AI智能规划") || target.textContent.trim().startsWith("定制方案"))) return;

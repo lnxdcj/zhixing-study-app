@@ -3,48 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>研学课程设计器 · 知行研学</title>
-  <style>
-    *{box-sizing:border-box}body{margin:0;background:#f4f7f6;color:#1f2937;font-family:"Microsoft YaHei",system-ui,sans-serif}button,input,select{font:inherit}
-    header{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;min-height:64px;padding:10px max(16px,calc((100% - 920px)/2));border-bottom:1px solid #dfe7e4;background:#fff}
-    header a{display:grid;place-items:center;width:38px;height:38px;color:#334155;text-decoration:none;font-size:28px}header h1{margin:0;font-size:19px}header p{margin:3px 0 0;color:#64748b;font-size:12px}
-    main{width:min(920px,100%);margin:auto;padding:20px 16px 80px}.intro{margin-bottom:18px;padding:18px;border-left:4px solid #059669;background:#fff}.intro h2{margin:0 0 6px;font-size:18px}.intro p{margin:0;color:#64748b;font-size:13px;line-height:1.7}
-    form{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field,fieldset{margin:0;padding:14px;border:1px solid #dfe7e4;border-radius:7px;background:#fff}label,legend{display:block;margin-bottom:7px;color:#334155;font-size:13px;font-weight:700}input,select{width:100%;min-height:44px;padding:9px 10px;border:1px solid #cbd5e1;border-radius:5px;background:#fff;color:#1f2937}.wide,fieldset,.actions{grid-column:1/-1}
-    .checks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.checks label{margin:0}.checks input{position:absolute;opacity:0;pointer-events:none}.checks span{display:flex;min-height:38px;align-items:center;justify-content:center;padding:7px;border:1px solid #dfe7e4;border-radius:5px;background:#f8fafc;color:#475569;font-size:12px;font-weight:500}.checks input:checked+span{border-color:#059669;background:#ecfdf5;color:#047857;font-weight:700}
-    .actions{display:flex;justify-content:flex-end}.submit{min-height:48px;padding:0 28px;border:0;border-radius:6px;background:#047857;color:#fff;font-weight:700}.status{grid-column:1/-1;margin:0;text-align:center;color:#b45309;font-size:12px}
-    #result{display:grid;gap:12px;margin-top:18px}.result-head{display:flex;justify-content:space-between;gap:12px;padding:18px;border-radius:7px;background:#064e3b;color:#fff}.result-head small{color:#a7f3d0}.result-head h2{margin:5px 0 0;font-size:21px}.result-head button,.result-actions button{padding:9px 12px;border:1px solid currentColor;border-radius:5px;background:transparent;color:inherit}
-    .panel{padding:16px;border:1px solid #dfe7e4;border-radius:7px;background:#fff}.panel h3{margin:0 0 10px;font-size:15px}.panel p,.panel li{color:#475569;font-size:13px;line-height:1.7}.modules,.schedule,.activities{display:grid;gap:10px}.modules article,.schedule article,.activities article{padding:12px;border-left:3px solid #10b981;background:#f8fafc}.modules strong,.schedule strong,.activities strong{display:block;margin-bottom:4px}.schedule time{color:#b45309;font-size:12px;font-weight:700}.result-actions{display:flex;justify-content:flex-end;gap:10px}.result-actions button{border-color:#047857;background:#047857;color:#fff}
-    @media(max-width:640px){form{grid-template-columns:1fr}.wide,fieldset,.actions{grid-column:1}.checks{grid-template-columns:repeat(2,minmax(0,1fr))}.result-head{display:block}.result-head button{margin-top:12px}}
-    @media print{header,.intro,form,.result-actions,.result-head button{display:none!important}body{background:#fff}main{width:100%;padding:0}.panel{break-inside:avoid}}
-  </style>
+  <title>详细研学方案设计器 · 知行研学</title>
+  <link rel="stylesheet" href="./assets/course-designer.css?v=2">
 </head>
 <body>
-  <header><a href="./index.html#/home" aria-label="返回首页">‹</a><div><h1>研学课程设计器</h1><p>课程 · 活动 · 内容 · 评价</p></div></header>
+  <header><a href="./index.html#/home" aria-label="返回首页">‹</a><div><h1>研学课程设计器</h1><p>从主题构想到现场执行</p></div></header>
   <main>
-    <section class="intro"><h2>从一个关键词或地点开始</h2><p>面向中小学生、大学生、成年人、企事业单位及党校干部教育，生成可执行的研学课程结构、活动流程与评价方案。</p></section>
+    <section class="intro"><span class="eyebrow">详细执行版</span><h2>不只列行程，把每一步讲清楚</h2><p>生成逐日日程、活动任务卡、人员分工、物资清单、预算分配、评价量规与安全备选。按人群、主题和时长调整；尚未核实的现场条件会单独列出。</p></section>
     <form id="designer-form">
       <section class="field"><label for="topic">关键词 / 主题</label><input id="topic" name="topic" maxlength="120" placeholder="例如：生态文明、工业遗产、乡村振兴"></section>
-      <section class="field"><label for="location">地点 / 场域</label><input id="location" name="location" maxlength="120" placeholder="例如：苏州园林、井冈山、某社区或企业"></section>
+      <section class="field"><label for="location">地点 / 场域</label><input id="location" name="location" maxlength="120" placeholder="例如：苏州园林、某社区或企业"></section>
       <section class="field"><label for="audience">适用人群</label><select id="audience" name="audience"></select></section>
       <section class="field"><label for="courseType">课程类型</label><select id="courseType" name="courseType"></select></section>
-      <section class="field"><label for="duration">课程时长</label><select id="duration" name="duration"><option>半天</option><option selected>1天</option><option>2天1夜</option><option>3天2夜</option><option>5天专题班</option><option>长期项目制</option></select></section>
-      <section class="field"><label for="mode">组织形式</label><select id="mode" name="mode"><option>综合研学</option><option>现场教学</option><option>专题培训</option><option>田野调查</option><option>团队共创</option><option>项目制学习</option></select></section>
-      <fieldset><legend>设计重点</legend><div class="checks" id="emphasis"></div></fieldset>
-      <fieldset><legend>活动方法（最多选6项）</legend><div class="checks" id="methods"></div></fieldset>
-      <div class="actions"><button class="submit" type="submit">生成课程方案</button></div><p class="status" aria-live="polite"></p>
+      <section class="field"><label for="duration">课程时长</label><select id="duration" name="duration"></select></section>
+      <section class="field"><label for="mode">组织形式</label><select id="mode" name="mode"></select></section>
+      <section class="field"><label for="participants">参与人数</label><input id="participants" name="participants" type="number" min="1" max="500" step="1" placeholder="未填按30名学习者规划"><small>用于分组、物资和预算计算，不含带队人员。</small></section>
+      <section class="field"><label for="groupSize">每组最多人数</label><input id="groupSize" name="groupSize" type="number" min="1" max="12" step="1" placeholder="未填按人群建议值规划"><small>分组不代替主办方核定师生及保障配比。</small></section>
+      <section class="field"><label for="budget">人均预算上限（元，可选）</label><input id="budget" name="budget" type="number" min="1" max="100000" step="1" placeholder="例如：500"><small>只做预算上限分配，不生成未经核实的报价。</small></section>
+      <section class="field"><label for="departure">出发地（可选）</label><input id="departure" name="departure" maxlength="120" placeholder="例如：学校或单位集合点"><small>未查询路况；日程从场域集合开始。</small></section>
+      <fieldset><legend>设计重点（最多6项）</legend><div class="checks" id="emphasis"></div></fieldset>
+      <fieldset><legend>活动方法（最多6项）</legend><div class="checks" id="methods"></div><small>方法越多，单项时间越短；半天建议选择2至3项。</small></fieldset>
+      <section class="field wide"><label for="needs">补充需求 / 待确认约束（可选）</label><textarea id="needs" name="needs" maxlength="1000" rows="3" placeholder="例如：需要无障碍路线、以调查报告为成果、部分成员需要低体力任务。会纳入主办方确认清单，不自动认定条件已满足。"></textarea></section>
+      <div class="actions"><button class="submit" type="submit">生成详细执行方案</button></div>
+      <p id="form-status" class="status" role="status" aria-live="polite"></p>
     </form>
-    <div id="result"></div>
+    <div id="result" tabindex="-1" aria-label="生成的详细研学方案"></div>
+    <noscript><p>请启用 JavaScript 后使用方案设计器。</p></noscript>
   </main>
-  <script>
-    const audiences={"小学阶段":"兴趣启蒙、具象观察、合作表达与全过程安全","初中阶段":"学科联系、证据意识、问题探究与团队协作","高中阶段":"专题研究、材料分析、跨学科综合与生涯认知","大学生":"专业视角、田野方法、学术规范与社会创新","党校/干部教育":"理论联系实际、现场教学、案例研讨与行动转化","企事业单位":"组织协作、行业认知、创新实践与团队共创","亲子家庭":"代际协作、共同观察、文化体验与家庭交流","成人公众":"文化理解、深度体验、公共议题与自主表达","老年学习者":"节奏友好、经验连接、文化记忆与社群交流"};
-    const types={"综合主题":"跨学科整合与真实问题解决","历史文化":"史料研读、空间考证与历史解释","自然生态":"科学观察、样方调查与数据分析","科技工程":"工程拆解、实验验证与方案设计","艺术人文":"作品细读、审美表达与文化阐释","红色教育":"现场教学、案例研讨与行动转化","社会实践":"田野调查、公共参与与服务学习","工业研学":"生产流程、质量管理与智能制造","乡村振兴":"村情调查、产业分析与社区共创","城市治理":"公共数据、利益协商与政策设计","博物馆教育":"藏品研究、策展叙事与观众学习","法治教育":"规则分析、模拟法庭与公共伦理","国防教育":"安全素养、科技认知与桌面推演","生命健康":"实验观察、急救训练与健康传播","职业生涯":"岗位体验、能力盘点与创新项目","非遗民俗":"技艺深描、口述史与活化设计","国际理解":"区域比较、跨文化沟通与全球议题"};
-    const methodNames=["实地观察","实验探究","田野调查","人物访谈","情境模拟","案例研讨","角色扮演","辩论协商","策展创作","工程制作","志愿服务","项目路演"], emphasisNames=["文化理解","科学探究","思政教育","劳动实践","社会调查","职业发展","团队建设","成果创作"];
-    const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-    audience.innerHTML=Object.keys(audiences).map(x=>`<option>${x}</option>`).join(""); courseType.innerHTML=Object.entries(types).map(([k,v])=>`<option value="${k}">${k} · ${v}</option>`).join("");
-    function checks(el,names,name){el.innerHTML=names.map(x=>`<label><input type="checkbox" name="${name}" value="${x}"><span>${x}</span></label>`).join("")}; checks(emphasis,emphasisNames,"emphasis");checks(methods,methodNames,"methods");
-    function plan(d){const subject=d.topic||"地方文化与社会发展",place=d.location||"当地代表性场域",ms=d.methods.length?d.methods:["实地观察","案例研讨","项目路演"];return{title:`${place}·${subject}研学课程`,positioning:`面向${d.audience}的${d.duration}${d.mode}课程，以${place}为真实学习场域，围绕“${subject}”组织学习，突出${types[d.courseType]}，重点发展${audiences[d.audience]}。`,objectives:[`理解“${subject}”的核心概念、地方背景及现实联系`,`使用观察、访谈、材料分析或数据记录方法收集一手证据`,`围绕真实问题开展合作讨论，形成有依据的解释或建议`,`完成可展示、可传播的学习成果并进行反思`],modules:[['行前导学与问题建立',`建立${place}与${subject}的背景框架，明确核心问题和资料来源。`],['现场观察与证据采集','围绕空间、人物、实物、制度或自然现象完成定点观察。'],['主题研讨与观点形成','整理证据，比较不同解释，识别证据不足之处。'],['成果共创与行动转化','将学习结果转化为可展示或可执行的成果。']],schedule:[['行前','发布资料包，完成基础认知调查和个人问题卡。'],['上午','场域导入、任务发布、现场探究与证据采集。'],['下午前段','整理记录，开展案例讨论或作品制作。'],['下午后段','成果发布、交叉提问、导师反馈与个人反思。']],activities:ms.slice(0,6),assessment:['过程记录完整度与资料来源规范性占30%','问题分析、证据使用和观点逻辑占35%','成果质量、现场表达与团队协作占25%','个人反思与行动转化占10%'],safety:['活动前核实预约、开放区域、交通和当地最新管理要求','根据不同人群配置活动节奏、休息和保障人员','访谈、拍摄和信息收集遵循知情同意与隐私保护原则','准备天气变化、人员走失、身体不适和活动中止预案']}};
-    function render(p){result.innerHTML=`<section class="result-head"><div><small>专业课程模板</small><h2>${esc(p.title)}</h2></div><button type="button" onclick="location.reload()">重新设计</button></section><section class="panel"><h3>课程定位</h3><p>${esc(p.positioning)}</p></section><section class="panel"><h3>学习目标</h3><ol>${p.objectives.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></section><section class="panel"><h3>课程模块</h3><div class="modules">${p.modules.map(x=>`<article><strong>${esc(x[0])}</strong><p>${esc(x[1])}</p></article>`).join("")}</div></section><section class="panel"><h3>活动流程</h3><div class="schedule">${p.schedule.map(x=>`<article><time>${esc(x[0])}</time><p>${esc(x[1])}</p></article>`).join("")}</div></section><section class="panel"><h3>核心活动</h3><div class="activities">${p.activities.map(x=>`<article><strong>${esc(x)}</strong><p>形成过程记录与小组成果</p></article>`).join("")}</div></section><section class="panel"><h3>评价方式</h3><ul>${p.assessment.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></section><section class="panel"><h3>实施与安全</h3><ul>${p.safety.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></section><footer class="result-actions"><button type="button" onclick="window.print()">打印 / 导出 PDF</button></footer>`; result.scrollIntoView({behavior:"smooth"})}
-    document.querySelector('form').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.currentTarget),d={topic:f.get('topic').trim(),location:f.get('location').trim(),audience:f.get('audience'),courseType:f.get('courseType'),duration:f.get('duration'),mode:f.get('mode'),methods:f.getAll('methods')};if(!d.topic&&!d.location){document.querySelector('.status').textContent='请至少填写一个关键词或地点';return}document.querySelector('.status').textContent='';render(plan(d))});
-  </script>
+  <script type="module" src="./assets/course-designer.mjs?v=2"></script>
 </body>
 </html>
