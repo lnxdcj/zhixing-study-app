@@ -1,7 +1,7 @@
 {
   "name": "zhixing-study-mobile",
   "private": true,
-  "version": "1.3.6",
+  "version": "1.3.19",
   "scripts": {
     "prepare:web": "node scripts/prepare-web.mjs",
     "configure:android": "node scripts/configure-android.mjs",

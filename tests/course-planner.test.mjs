@@ -109,8 +109,12 @@ test("free-text input is escaped in every generated section", () => {
 });
 test("primary and legacy entry points both lead to the detailed planner", async () => {
   const page = await readFile(new URL("../course-designer.html", import.meta.url), "utf8");
+  const styles = await readFile(new URL("../assets/course-designer.css", import.meta.url), "utf8");
   const index = await readFile(new URL("../index.html", import.meta.url), "utf8");
   assert.ok(page.includes('type="module" src="./assets/course-designer.mjs?v=2"'));
   assert.ok(index.includes('window.addEventListener("hashchange", openDetailedPlannerRoute)'));
   assert.ok(page.includes('name="needs"') && page.includes('name="budget"'));
+  assert.ok(page.includes('course-designer.css?v=3-safe-area'));
+  assert.match(styles, /max\(38px,calc\(14px \+ env\(safe-area-inset-top\)\)\)/);
+  assert.match(styles, /safe-area-inset-bottom/);
 });

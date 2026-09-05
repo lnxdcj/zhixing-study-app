@@ -821,6 +821,9 @@
     } catch (_error) { backendAvailable = false; }
     accountButton();
     await refreshLearningSummary();
+    window.__zhixingAuthReady = true;
+    document.documentElement.classList.add("zhixing-auth-ready");
+    window.dispatchEvent(new CustomEvent("zhixing-auth-ready", { detail: { user: currentUser } }));
     const root = document.getElementById("root");
     if (root) {
       let scheduled = false;

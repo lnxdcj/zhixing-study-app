@@ -38,14 +38,14 @@
       label: "苏州拙政园实景"
     },
     badge: {
-      url: "./assets/images/local/img-08-e1a961b81c.jpg",
-      source: "https://unsplash.com/photos/photo-1602173574767-37ac01994b2a",
-      label: "金属纪念徽章实拍"
+      url: "./assets/images/local/product-badge.svg",
+      source: "本地绘制示意图",
+      label: "研学纪念徽章示意图"
     },
     bookmark: {
-      url: "./assets/images/local/img-09-721dfa4afb.jpg",
-      source: "https://unsplash.com/photos/photo-1543002588-bfa74002ed7e",
-      label: "书籍与书签实拍"
+      url: "./assets/images/local/product-bookmark.svg",
+      source: "本地绘制示意图",
+      label: "研学主题书签示意图"
     },
     notebook: {
       url: "./assets/images/local/img-10-ea1b29c392.jpg",
@@ -53,9 +53,9 @@
       label: "研学笔记本实拍"
     },
     hanfu: {
-      url: "./assets/images/local/img-11-8fe1e93a3f.jpg",
-      source: "https://unsplash.com/photos/photo-1599707367072-cd6ada2bc375",
-      label: "中国传统服饰实拍"
+      url: "./assets/images/local/product-hanfu.svg",
+      source: "本地绘制示意图",
+      label: "汉服主题文创示意图"
     },
     tshirt: {
       url: "./assets/images/local/img-12-42a5b04af9.jpg",
@@ -299,7 +299,7 @@
       id: "extra-dunhuang", category: "作品", user: "林语桐", time: "刚刚", location: "甘肃·敦煌", likes: 146,
       content: "第一次在老师指导下临摹敦煌壁画。先观察线条和矿物颜色，再理解飞天形象背后的文化交流，画完才发现每一笔都有历史。",
       tags: ["敦煌艺术", "壁画临摹", "丝路文化"],
-      photo: { url: "./assets/images/local/img-21-b5bc3010f8.jpg", source: "https://unsplash.com/photos/photo-1500534314209-a25ddb2bd429", label: "敦煌沙漠研学实景" }
+      photo: { url: photos.dunhuang.url, source: photos.dunhuang.source, label: "敦煌莫高窟壁画（主题配图）" }
     },
     {
       id: "extra-forest", category: "日志", user: "周景行", time: "18分钟前", location: "湖北·神农架", likes: 98,
@@ -535,6 +535,33 @@
     return rule ? rule.photo : null;
   }
 
+  const stableCommunityImageSets = [
+    { match: "今天在草原上看到了成群的牛羊", photos: [photos.grassland] },
+    { match: "学习了土尔扈特部东归的历史", photos: [photos.chengde] },
+    { match: "小组合作完成了东归路线图", photos: [
+      { url: "./assets/images/donggui-team-1.jpg", label: "中国中学生研学小组" },
+      { url: "./assets/images/donggui-team-2.jpg", label: "中国少年课堂讨论" },
+      { url: "./assets/images/donggui-team-3.jpg", label: "中国学生研学绘制记录" }
+    ] }
+  ];
+
+  function communityImageAssignment(img) {
+    if (!(img instanceof HTMLImageElement)) return null;
+    let candidate = img.parentElement;
+    while (candidate && candidate !== document.body) {
+      const text = (candidate.textContent || "").replace(/\s+/g, "");
+      const definition = stableCommunityImageSets.find(function (item) { return text.includes(item.match); });
+      if (definition && stableCommunityImageSets.filter(function (item) { return text.includes(item.match); }).length === 1) {
+        const images = Array.from(candidate.querySelectorAll("img")).filter(isContentImage);
+        if (images.length >= 1 && images.includes(img)) {
+          return { definition: definition, index: images.indexOf(img) };
+        }
+      }
+      candidate = candidate.parentElement;
+    }
+    return null;
+  }
+
   function isContentImage(img) {
     if (!(img instanceof HTMLImageElement)) return false;
     if (img.closest(".extra-post-author,header,[class*='avatar'],[class*='Avatar']")) return false;
@@ -546,14 +573,8 @@
   }
 
   function pickUnusedLocalImage(preferred, used) {
-    if (!preferred) return "";
-    const preferredAbsolute = new URL(preferred, window.location.href).href;
-    if (!used || !used.has(preferredAbsolute)) return preferred;
-    for (const candidate of localImagePool) {
-      const absolute = new URL(candidate, window.location.href).href;
-      if (!used.has(absolute)) return candidate;
-    }
-    return preferred;
+    // Never swap a matching photo for an unrelated pool image.
+    return preferred || "";
   }
 
   function localImageForRemote(url, used, context) {
@@ -564,15 +585,7 @@
       return item.keywords.some(function (keyword) { return haystack.toLowerCase().includes(String(keyword).toLowerCase()); });
     });
     if (semantic?.image) return pickUnusedLocalImage(semantic.image, used);
-    let hash = 0;
-    for (let i = 0; i < text.length; i += 1) hash = (hash * 31 + text.charCodeAt(i)) >>> 0;
-    const start = hash % localImagePool.length;
-    for (let offset = 0; offset < localImagePool.length; offset += 1) {
-      const candidate = localImagePool[(start + offset) % localImagePool.length];
-      const absolute = new URL(candidate, window.location.href).href;
-      if (!used || !used.has(absolute)) return candidate;
-    }
-    return localImagePool[start] || "";
+    return "";
   }
 
   function localizeRemoteImages(root) {
@@ -586,14 +599,33 @@
       if (!isContentImage(img)) return;
       if (/api\.dicebear\.com/.test(img.src || "")) return;
       const context = contextTextForImage(img);
+      const community = communityImageAssignment(img);
       const semanticPhoto = semanticPhotoForContext(context);
-      let local = semanticPhoto?.url || "";
+      let local = community ? community.definition.photos[community.index]?.url || "" : "";
+      if (community && !local) {
+        img.hidden = true;
+        img.style.setProperty("display", "none", "important");
+        return;
+      }
+      if (community) {
+        const photo = community.definition.photos[community.index];
+        if (photo?.label) img.alt = photo.label;
+        img.style.setProperty("aspect-ratio", "16 / 9", "important");
+        img.style.setProperty("object-fit", "cover", "important");
+        img.style.setProperty("display", "block", "important");
+      }
+      // Explicit local card assets and uploaded images must not be reassigned by broad keywords.
+      if (!community && /承德研学基地|承德/.test(context) && /img-(15|21)-/.test(img.getAttribute("src") || "")) {
+        local = photos.chengde.url;
+      }
+      if (!community && !local && /(?:assets\/images\/|^blob:|\/api\/)/.test(img.getAttribute("src") || "")) return;
+      if (!local) local = pickUnusedLocalImage(semanticPhoto?.url || "", used);
       if (!local) local = localImageForRemote(img.currentSrc || img.src || img.getAttribute("src") || "", used, context);
       if (!local) return;
       const absoluteLocal = new URL(local, window.location.href).href;
       img.removeAttribute("srcset");
       img.removeAttribute("sizes");
-      if (semanticPhoto?.label) img.alt = semanticPhoto.label;
+      if (semanticPhoto?.label && !community) img.alt = semanticPhoto.label;
       markImageFast(img, true);
       if (img.src !== absoluteLocal) img.src = local;
       used.add(absoluteLocal);
@@ -935,6 +967,34 @@
       card.style.scrollSnapAlign = "start";
       card.style.overflow = "hidden";
     });
+  }
+
+  function stabilizeHomeHeroCarousel() {
+    if (!isHomeRoute()) return;
+    let carousel = document.querySelector('[data-stable-home-hero="true"]');
+    if (!carousel) {
+      carousel = Array.from(document.querySelectorAll("div.relative.h-44.rounded-2xl.overflow-hidden.card-shadow")).find(function (item) {
+        return item.closest("main") && item.parentElement?.tagName === "SECTION";
+      });
+    }
+    if (!carousel) return;
+    carousel.dataset.stableHomeHero = "true";
+    carousel.style.setProperty("background-color", "#e5e7eb", "important");
+    carousel.style.setProperty("background-size", "cover", "important");
+    carousel.style.setProperty("background-position", "center", "important");
+    carousel.style.setProperty("background-repeat", "no-repeat", "important");
+
+    const image = carousel.querySelector(":scope > .absolute.inset-0 img") || carousel.querySelector("img");
+    if (!image) return;
+    const preserveLoadedImage = function () {
+      if (!image.complete || image.naturalWidth < 1) return;
+      const source = image.currentSrc || image.src;
+      if (!source) return;
+      carousel.style.setProperty("background-image", "url(" + JSON.stringify(source) + ")", "important");
+      carousel.dataset.stableHomeHeroImage = source;
+    };
+    preserveLoadedImage();
+    if (!image.complete) image.addEventListener("load", preserveLoadedImage, { once: true });
   }
 
   function bindThemeCategories(root) {
@@ -3159,7 +3219,13 @@
       html:not(.cloud-message-route) .cloud-message-page, html:not(.cloud-message-route) .cloud-thread-page, html:not(.cloud-message-route) .cloud-notice-detail, html:not(.cloud-message-route) .cloud-message-sheet { display: none !important; visibility: hidden !important; pointer-events: none !important; }
       body div[role="alert"][class*="bg-black"], body div[class*="top-1/3"][class*="z-[200]"], body div[class*="bg-black/85"] { display: none !important; visibility: hidden !important; pointer-events: none !important; }
       .route-handoff-guard #main-content, .message-route-flash-guard #main-content, .zhi-route-flash-guard #main-content, .profile-route-flash-guard #main-content { opacity: 0 !important; pointer-events: none !important; transition: none !important; }
+      .profile-route-flash-guard body::before { position: fixed; inset: 0 0 72px; z-index: 2147483500; display: block; background: linear-gradient(180deg,#f4fff8 0,#f8fafc 42%,#f8fafc 100%); content: ""; pointer-events: none; }
+      .profile-route-flash-guard body::after { position: fixed; top: 46%; left: 50%; z-index: 2147483501; display: block; padding: 10px 14px; border-radius: 8px; background: rgba(255,255,255,.92); color: #64748b; box-shadow: 0 10px 28px rgba(15,23,42,.08); content: "正在打开我的…"; font-size: 12px; font-weight: 700; transform: translate(-50%,-50%); pointer-events: none; }
       .cloud-message-active #main-content { visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; transition: none !important; }
+      /* A guest message route must never expose the bundled demo conversation underneath its lock. */
+      .guest-message-route #main-content { visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
+      .guest-message-route #cloud-message-page { display: none !important; }
+      .guest-zhi-route #main-content { visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
       .cloud-message-active #root > nav, .cloud-message-active nav { visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; }
       .cloud-message-page header { display: grid; grid-template-columns: minmax(0,1fr) 42px; align-items: center; min-height: 66px; padding: calc(10px + env(safe-area-inset-top)) 20px 10px; border-bottom: 1px solid rgba(226,232,240,.72); background: rgba(255,255,255,.86); backdrop-filter: blur(16px); }
       .cloud-message-page h1 { font-size: 30px; line-height: 1; font-weight: 900; letter-spacing: 0; }
@@ -3914,6 +3980,7 @@
       document.documentElement.classList.remove("cloud-message-route");
       return;
     }
+    const requestUser = window.zhixingApi.user;
     ensureCloudMessageStyle();
     document.documentElement.classList.add("cloud-message-active");
     document.documentElement.classList.add("cloud-message-route");
@@ -3937,8 +4004,7 @@
         window.zhixingApi.api("/api/notifications"),
         window.zhixingApi.api("/api/friends")
       ]);
-      if (window.location.hash !== "#/message" || !page.isConnected) {
-        closeCloudMessagePage();
+      if (window.location.hash !== "#/message" || !page.isConnected || window.zhixingApi.user !== requestUser) {
         return;
       }
       const friendList = friends.friends || [];
@@ -3991,8 +4057,7 @@
       syncGuestMessageCount();
       page.dataset.loading = "false";
     } catch (error) {
-      if (window.location.hash !== "#/message" || !page.isConnected) {
-        closeCloudMessagePage();
+      if (window.location.hash !== "#/message" || !page.isConnected || window.zhixingApi.user !== requestUser) {
         return;
       }
       page.querySelector(".cloud-conversations").innerHTML = '<div class="backend-status is-error">' + escapeHtml(error.message) + '</div>';
@@ -4065,23 +4130,63 @@
 
   let messageFlashGuardTimer = null;
   let routeHandoffGuardTimer = null;
+  let profileHandoffTimer = null;
+  let profileHandoffInProgress = false;
 
   function beginRouteHandoffGuard(kind) {
     ensureCloudMessageStyle();
     document.documentElement.classList.add("route-handoff-guard");
     if (kind === "zhi") document.documentElement.classList.add("zhi-route-flash-guard");
     if (kind === "message") document.documentElement.classList.add("message-route-flash-guard");
-    if (kind === "profile") document.documentElement.classList.add("profile-route-flash-guard");
+    if (kind === "profile") {
+      profileHandoffInProgress = true;
+      document.documentElement.classList.add("profile-route-flash-guard");
+    }
     window.clearTimeout(routeHandoffGuardTimer);
     routeHandoffGuardTimer = window.setTimeout(clearRouteHandoffGuard, 900);
   }
 
   function clearRouteHandoffGuard() {
+    if (profileHandoffInProgress && window.location.hash === "#/profile") {
+      document.documentElement.classList.remove("zhi-route-flash-guard", "message-route-flash-guard");
+      return;
+    }
     document.documentElement.classList.remove("route-handoff-guard", "zhi-route-flash-guard", "message-route-flash-guard", "profile-route-flash-guard");
+  }
+
+  function finishProfileHandoff(attempt) {
+    window.clearTimeout(profileHandoffTimer);
+    const tries = Number(attempt || 0);
+    profileHandoffTimer = window.setTimeout(function () {
+      if (window.location.hash !== "#/profile") {
+        if (tries < 24) finishProfileHandoff(tries + 1);
+        else {
+          profileHandoffInProgress = false;
+          clearRouteHandoffGuard();
+        }
+        return;
+      }
+      syncGuestInitialState();
+      const main = document.getElementById("main-content");
+      const text = (main?.textContent || "").replace(/\s+/g, "");
+      const guestReady = hasRealAccount() || (/未登录用户|游客/.test(text) && !/张小华|北京市第一中学/.test(text));
+      if ((!main || !guestReady) && tries < 24) {
+        finishProfileHandoff(tries + 1);
+        return;
+      }
+      window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(function () {
+          profileHandoffInProgress = false;
+          clearRouteHandoffGuard();
+          restoreProfileInteractivity();
+        });
+      });
+    }, tries === 0 ? 0 : 50);
   }
 
   function restoreProfileInteractivity() {
     if (window.location.hash !== "#/profile") return;
+    if (profileHandoffInProgress) return;
     document.documentElement.classList.remove("route-handoff-guard", "profile-route-flash-guard");
     const main = document.getElementById("main-content");
     if (main) {
@@ -4160,6 +4265,15 @@
     const goingToProfile = href === "#/profile" || text === "\u6211\u7684" || /鎴戠殑/.test(text);
     const goingToMessage = href === "#/message" || text === "消息" || text === "娑堟伅";
     const goingToZhi = href === "#/zhi-xing" || text === "知行" || text === "鐭ヨ";
+    // Some bundled bottom-nav buttons update React state asynchronously and briefly leave
+    // the previous page visible. Commit the hash synchronously so the old screen is hidden.
+    if (!href && /^(首页|发现|知行|消息|我的)$/.test(text)) {
+      const route = { 首页: "/home", 发现: "/discover", 知行: "/zhi-xing", 消息: "/message", 我的: "/profile" }[text];
+      if (route) {
+        document.documentElement.classList.add("route-handoff-guard");
+        window.location.hash = route;
+      }
+    }
     if (goingToMessage && hasRealAccount()) {
       beginRouteHandoffGuard("message");
       document.documentElement.classList.add("cloud-message-route", "cloud-message-active");
@@ -4181,10 +4295,7 @@
     }
     if (goingToProfile) {
       beginRouteHandoffGuard("profile");
-      window.setTimeout(function () {
-        syncGuestInitialState();
-        window.setTimeout(clearRouteHandoffGuard, 320);
-      }, 0);
+      finishProfileHandoff(0);
     }
   }
 
@@ -4222,6 +4333,7 @@
       button.style.setProperty("left", Math.min(Math.max(minX, drag.left + dx), maxX) + "px", "important");
       button.style.setProperty("top", Math.min(Math.max(minY, drag.top + dy), maxY) + "px", "important");
       button.style.setProperty("right", "auto", "important");
+      button.dataset.userPositioned = "true";
       button.classList.add("is-dragging");
     });
     button.addEventListener("pointerup", function (event) {
@@ -4246,12 +4358,30 @@
     const pad = 10;
     const width = 104;
     const height = 36;
+    const safeTop = 48;
     return {
       minX: pageLeft + pad,
       maxX: Math.max(pageLeft + pad, pageLeft + pageWidth - width - pad),
-      minY: 10,
-      maxY: Math.max(10, window.innerHeight - height - 76)
+      minY: safeTop,
+      maxY: Math.max(safeTop, window.innerHeight - height - 76)
     };
+  }
+
+  function isHomeRoute() {
+    const route = window.location.hash || "#/";
+    return route === "#/" || route === "#/home" || route.startsWith("#/home?");
+  }
+
+  function homeBrandAlignedTop(button) {
+    if (!isHomeRoute() || button?.dataset.userPositioned === "true" || window.scrollY > 8) return null;
+    const title = Array.from(document.querySelectorAll("header h1")).find(function (heading) {
+      const rect = heading.getBoundingClientRect();
+      return heading.textContent.trim() === "\u77e5\u884c\u7814\u5b66" && rect.width > 0 && rect.height > 0;
+    });
+    if (!title) return null;
+    const titleRect = title.getBoundingClientRect();
+    const buttonHeight = button.getBoundingClientRect().height || 36;
+    return Math.round(titleRect.top + (titleRect.height - buttonHeight) / 2);
   }
 
   function syncAccountFloatLayer() {
@@ -4270,19 +4400,9 @@
       button.type = "button";
       button.className = "stable-auth-float";
       document.body.appendChild(button);
-      bindStableAuthFloatDrag(button);
-      try {
-        const saved = JSON.parse(localStorage.getItem("zhixingStableAuthFloatPosition") || "null");
-        if (saved && Number.isFinite(saved.x) && Number.isFinite(saved.y)) {
-          const bounds = accountFloatBounds(button);
-          button.style.setProperty("left", Math.min(Math.max(bounds.minX, saved.x), bounds.maxX) + "px", "important");
-          button.style.setProperty("top", Math.min(Math.max(bounds.minY, saved.y), bounds.maxY) + "px", "important");
-          button.style.setProperty("right", "auto", "important");
-        }
-      } catch (_error) {}
-    } else {
-      bindStableAuthFloatDrag(button);
     }
+    if (button.parentElement !== document.body) document.body.appendChild(button);
+    bindStableAuthFloatDrag(button);
     if (button.dataset.authClickBound !== "true") {
       button.dataset.authClickBound = "true";
       button.addEventListener("click", function (event) {
@@ -4298,15 +4418,38 @@
     const roleLabel = { student: "\u5b66\u751f", teacher: "\u8001\u5e08", parent: "\u5bb6\u957f", admin: "\u7ba1\u7406\u5458" }[user?.role] || "\u8d26\u53f7";
     button.textContent = user ? roleLabel + " \u00b7 " + (user.displayName || "\u8d26\u53f7\u4e2d\u5fc3") : "\u767b\u5f55 / \u6ce8\u518c";
     button.dataset.stableAccountFloat = "true";
-    button.removeAttribute("aria-hidden");
-    if (button.parentElement !== document.body) document.body.appendChild(button);
+    const loader = document.getElementById("boot-loader");
+    const alignedTop = homeBrandAlignedTop(button);
+    const waitingForHome = isHomeRoute() && button.dataset.userPositioned !== "true" && window.scrollY <= 8 && alignedTop == null;
+    const waitingForLoader = loader && !loader.classList.contains("is-hidden");
+    const hideButton = waitingForHome || waitingForLoader;
+    const bounds = accountFloatBounds(button);
+    if (button.dataset.savedPositionRestored !== "true") {
+      button.dataset.savedPositionRestored = "true";
+      try {
+        const saved = JSON.parse(localStorage.getItem("zhixingStableAuthFloatPosition") || "null");
+        if (Number.isFinite(saved?.x) && Number.isFinite(saved?.y)) {
+          const restoredX = Math.min(Math.max(bounds.minX, saved.x), bounds.maxX);
+          const restoredY = Math.min(Math.max(bounds.minY, saved.y), bounds.maxY);
+          button.style.setProperty("left", restoredX + "px", "important");
+          button.style.setProperty("top", restoredY + "px", "important");
+          button.style.setProperty("right", "auto", "important");
+          button.dataset.userPositioned = "true";
+          if (restoredX !== saved.x || restoredY !== saved.y) {
+            localStorage.setItem("zhixingStableAuthFloatPosition", JSON.stringify({ x: Math.round(restoredX), y: Math.round(restoredY) }));
+          }
+        }
+      } catch (_error) {}
+    }
     button.className = "stable-auth-float";
     button.style.setProperty("position", "fixed", "important");
+    button.style.setProperty("margin-left", "0", "important");
+    button.style.setProperty("flex", "0 0 104px", "important");
     button.style.setProperty("display", "inline-flex", "important");
-    button.style.setProperty("visibility", "visible", "important");
-    button.style.setProperty("opacity", "1", "important");
+    button.style.setProperty("visibility", hideButton ? "hidden" : "visible", "important");
+    button.style.setProperty("opacity", hideButton ? "0" : "1", "important");
     button.style.setProperty("z-index", "2147483600", "important");
-    button.style.setProperty("pointer-events", "auto", "important");
+    button.style.setProperty("pointer-events", hideButton ? "none" : "auto", "important");
     button.style.setProperty("touch-action", "none", "important");
     button.style.setProperty("user-select", "none", "important");
     button.style.setProperty("transition", "none", "important");
@@ -4319,19 +4462,24 @@
     button.style.setProperty("overflow", "hidden", "important");
     button.style.setProperty("white-space", "nowrap", "important");
     button.style.setProperty("text-overflow", "ellipsis", "important");
+    if (hideButton) button.setAttribute("aria-hidden", "true");
+    else button.removeAttribute("aria-hidden");
+    if (alignedTop != null) {
+      button.style.setProperty("top", Math.min(Math.max(0, alignedTop), bounds.maxY) + "px", "important");
+    }
     const rect = button.getBoundingClientRect();
-    const bounds = accountFloatBounds(button);
     const maxX = bounds.maxX;
     const maxY = bounds.maxY;
     const minX = bounds.minX;
     const minY = bounds.minY;
-    if (rect.right < minX || rect.left > maxX || rect.bottom < minY || rect.top > window.innerHeight - 8) {
+    const isVerticallyOutside = alignedTop == null && (rect.bottom < minY || rect.top > window.innerHeight - 8);
+    if (rect.right < minX || rect.left > maxX || isVerticallyOutside) {
       button.style.setProperty("left", maxX + "px", "important");
-      button.style.setProperty("top", minY + "px", "important");
+      if (alignedTop == null) button.style.setProperty("top", minY + "px", "important");
       button.style.setProperty("right", "auto", "important");
-    } else if (rect.left < minX || rect.top < minY || rect.left > maxX || rect.top > maxY) {
+    } else if (rect.left < minX || rect.left > maxX || (alignedTop == null && (rect.top < minY || rect.top > maxY))) {
       button.style.setProperty("left", Math.min(Math.max(minX, rect.left), maxX) + "px", "important");
-      button.style.setProperty("top", Math.min(Math.max(minY, rect.top), maxY) + "px", "important");
+      if (alignedTop == null) button.style.setProperty("top", Math.min(Math.max(minY, rect.top), maxY) + "px", "important");
       button.style.setProperty("right", "auto", "important");
     }
   }
@@ -8132,57 +8280,24 @@
     }
   ];
 
-  function replaceDongguiTeamPostImages(root) {
-    const scope = root?.querySelectorAll ? root : document;
-    const cards = Array.from(scope.querySelectorAll("article, section, li, div")).filter(function (node) {
-      const text = (node.textContent || "").replace(/\s+/g, "");
-      return text.includes("小组合作完成了东归路线图") || text.includes("东归路线图的绘制") || text.includes("小组合作") && text.includes("研学成果");
-    });
-    cards.forEach(function (card) {
-      const images = Array.from(card.querySelectorAll("img")).filter(function (img) {
-        return !img.closest(".extra-post-author") && !img.closest("header") && img.width !== 42 && img.height !== 42;
-      });
-      if (images.length < 2) return;
-      images.slice(-3).forEach(function (img, index) {
-        const photo = dongguiTeamPostPhotos[index % dongguiTeamPostPhotos.length];
-        const nextUrl = new URL(photo.url, window.location.href).href;
-        img.removeAttribute("srcset");
-        img.removeAttribute("sizes");
-        img.alt = photo.alt;
-        markImageFast(img, true);
-        if (img.src !== nextUrl) img.src = photo.url;
-        img.dataset.realSource = "Local original photo";
-        img.dataset.dongguiPhotoUrl = nextUrl;
-      });
-      card.dataset.dongguiPhotosFixed = "true";
-    });
-  }
-
-  function keepDongguiTeamPostImagesStable() {
-    let ticks = 0;
-    const run = function () {
-      ticks += 1;
-      replaceDongguiTeamPostImages(document);
-      if (ticks < 32) window.setTimeout(run, 250);
-    };
-    run();
-  }
-
   function keepAccountFloatStable() {
     syncAccountFloatLayer();
     window.requestAnimationFrame?.(syncAccountFloatLayer);
     window.setTimeout(syncAccountFloatLayer, 120);
     window.setTimeout(syncAccountFloatLayer, 500);
-    if (window.__zhixingAccountFloatTimer) return;
-    window.__zhixingAccountFloatTimer = window.setInterval(function () {
-      const button = document.getElementById("stable-auth-float");
-      if (!button) return syncAccountFloatLayer();
-      const style = window.getComputedStyle(button);
-      const rect = button.getBoundingClientRect();
-      if (style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0 || button.getAttribute("aria-hidden") === "true" || rect.width < 20 || rect.height < 20) {
+    if (window.__zhixingAccountFloatEventsBound) return;
+    window.__zhixingAccountFloatEventsBound = true;
+    const scheduleSync = function () {
+      if (window.__zhixingAccountFloatFrame) return;
+      window.__zhixingAccountFloatFrame = window.requestAnimationFrame(function () {
+        window.__zhixingAccountFloatFrame = null;
         syncAccountFloatLayer();
-      }
-    }, 250);
+      });
+    };
+    window.addEventListener("scroll", scheduleSync, { passive: true });
+    window.addEventListener("resize", scheduleSync, { passive: true });
+    window.addEventListener("orientationchange", scheduleSync, { passive: true });
+    window.visualViewport?.addEventListener("resize", scheduleSync, { passive: true });
   }
 
   function removeGuestEnrollSuccessToasts() {
@@ -8278,6 +8393,7 @@
 
   let isProcessing = false;
   let processQueued = false;
+  let lastProcessAt = 0;
   let roleProfileMenuRetryTimer = null;
 
   function processImages(root) {
@@ -8302,6 +8418,7 @@
       markAmap(root.querySelectorAll ? root : document);
       replaceDemoVideo(root.querySelectorAll ? root : document);
       syncHomeTabs(root.querySelectorAll ? root : document);
+      stabilizeHomeHeroCarousel();
       stabilizeRecommendationCarousel(root.querySelectorAll ? root : document);
       bindThemeCategories(root.querySelectorAll ? root : document);
       bindThemeCategoriesFallback(root.querySelectorAll ? root : document);
@@ -8311,7 +8428,6 @@
       syncGrasslandPostAuthor();
       bindCommunityFilters();
       normalizeCommunityTagChips(root.querySelectorAll ? root : document);
-      replaceDongguiTeamPostImages(root.querySelectorAll ? root : document);
       bindDiscoverCategories();
       bindPopularProjectsMore();
       bindZhiTaskActions();
@@ -8371,13 +8487,11 @@
     processQueued = true;
     const run = function () {
       processQueued = false;
+      lastProcessAt = Date.now();
       process(document);
     };
-    if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(run, { timeout: 500 });
-    } else {
-      window.setTimeout(run, 80);
-    }
+    const elapsed = Date.now() - lastProcessAt;
+    window.setTimeout(run, Math.max(48, 180 - elapsed));
   }
 
   const observer = new MutationObserver(function (records) {
@@ -8395,7 +8509,6 @@
   function start() {
     processImages(document);
     stabilizeMobileMedia(document);
-    keepDongguiTeamPostImagesStable();
     keepAccountFloatStable();
     syncGuestRouteState();
     syncReliableBottomNav();
@@ -8461,11 +8574,7 @@
       }
       if (window.location.hash === "#/profile") {
         beginRouteHandoffGuard("profile");
-        window.setTimeout(function () {
-          syncGuestInitialState();
-          restoreProfileInteractivity();
-          window.setTimeout(clearRouteHandoffGuard, 420);
-        }, 0);
+        finishProfileHandoff(0);
       }
       if (window.location.hash !== "#/message") closeCloudMessagePage();
       if (window.location.hash !== "#/message") suppressMessageRouteFlash();
@@ -8480,12 +8589,16 @@
     });
     window.addEventListener("hashchange", scrollRouteToTop);
     window.addEventListener("hashchange", renderPopularProjectsPage);
-    window.addEventListener("hashchange", keepDongguiTeamPostImagesStable);
     window.addEventListener("hashchange", function () { setTimeout(function () { markAmap(document); }, 250); });
     window.addEventListener("hashchange", function () { setTimeout(syncGuestInitialState, 250); });
     window.addEventListener("zhixing-auth-change", function () { cleanupAfterLogout(); syncGuestRouteState(); process(document); setTimeout(syncGuestInitialState, 100); setTimeout(syncSmartUserToasts, 120); });
     window.addEventListener("popstate", scrollRouteToTop);
     setTimeout(function () { markAmap(document); }, 500);
+    window.addEventListener("zhixing-auth-ready", function () {
+      syncGuestInitialState();
+      process(document);
+      document.documentElement.classList.add("zhixing-auth-ready");
+    }, { once: true });
   }
 
   if (document.readyState === "loading") {

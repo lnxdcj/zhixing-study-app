@@ -6,6 +6,7 @@ import test from "node:test";
 const client = await readFile(new URL("../assets/backend-client.js", import.meta.url), "utf8");
 const overrides = await readFile(new URL("../assets/media-overrides.js", import.meta.url), "utf8");
 const indexHtml = await readFile(new URL("../index.html", import.meta.url), "utf8");
+const mobilePackage = JSON.parse(await readFile(new URL("../mobile/package.json", import.meta.url), "utf8"));
 const api = await readFile(new URL("../netlify/functions/api.mjs", import.meta.url), "utf8");
 const demoSeed = await readFile(new URL("../netlify/database/migrations/0006_demo_showcase_accounts.sql", import.meta.url), "utf8");
 const adminSeed = await readFile(new URL("../netlify/database/migrations/0007_demo_admin_account.sql", import.meta.url), "utf8");
@@ -253,7 +254,67 @@ test("AI guide cards open with mouse, touch and keyboard input", () => {
   assert.match(overrides, /function restoreAiGuideModal\(\)/);
   assert.match(overrides, /data-protected-floating-surface/);
   assert.match(overrides, /restoreAiGuideModal\(\);/);
-  assert.match(indexHtml, /media-overrides\.js\?v=190-ai-guide-visible/);
+  assert.match(indexHtml, /media-overrides\.js\?v=203-route-stability/);
+});
+
+test("global login button stays draggable, safe and aligned on home", () => {
+  assert.doesNotMatch(overrides, /function homeBrandRow\(\)/);
+  assert.match(overrides, /if \(button\.parentElement !== document\.body\) document\.body\.appendChild\(button\)/);
+  assert.match(overrides, /bindStableAuthFloatDrag\(button\);/);
+  assert.match(overrides, /button\.style\.setProperty\("position", "fixed", "important"\)/);
+  assert.match(overrides, /button\.style\.setProperty\("touch-action", "none", "important"\)/);
+  assert.match(overrides, /function homeBrandAlignedTop\(button\)/);
+  assert.match(overrides, /button\?\.dataset\.userPositioned === "true" \|\| window\.scrollY > 8/);
+  assert.match(overrides, /button\.style\.setProperty\("top", Math\.min\(Math\.max\(minY, drag\.top \+ dy\), maxY\) \+ "px", "important"\)/);
+  assert.match(overrides, /button\.dataset\.userPositioned = "true"/);
+  assert.match(overrides, /document\.querySelectorAll\("header h1"\)/);
+  assert.match(overrides, /titleRect\.top \+ \(titleRect\.height - buttonHeight\) \/ 2/);
+  assert.match(overrides, /const safeTop = 48/);
+  assert.match(overrides, /minY: safeTop/);
+  assert.match(overrides, /localStorage\.getItem\("zhixingStableAuthFloatPosition"\)/);
+  assert.match(overrides, /const restoredY = Math\.min\(Math\.max\(bounds\.minY, saved\.y\), bounds\.maxY\)/);
+  assert.doesNotMatch(overrides, /hideOutsideHome/);
+  assert.match(overrides, /const hideButton = waitingForHome \|\| waitingForLoader/);
+  assert.match(overrides, /button\.style\.setProperty\("pointer-events", hideButton \? "none" : "auto"/);
+  assert.match(indexHtml, /window\.history\.replaceState\(null, "", window\.location\.pathname \+ window\.location\.search \+ "#\/home"\)/);
+  assert.match(indexHtml, /if \(window\.location\.hash !== "#\/home"\)/);
+  assert.match(indexHtml, /top: max\(52px, calc\(28px \+ env\(safe-area-inset-top\)\)\)/);
+});
+
+test("mobile runtime avoids repeated cache churn and high-frequency DOM polling", () => {
+  assert.match(indexHtml, new RegExp(`zhixing-cache-cleaned-${mobilePackage.version.replace(/\./g, "\\.")}`));
+  assert.match(indexHtml, /Service Worker disabled for runtime stability/);
+  assert.match(indexHtml, /window\.__zhixingAuthReady/);
+  assert.match(overrides, /__zhixingAccountFloatEventsBound/);
+  assert.match(overrides, /window\.addEventListener\("scroll", scheduleSync, \{ passive: true \}\)/);
+  assert.doesNotMatch(overrides, /__zhixingAccountFloatTimer/);
+  assert.match(overrides, /Math\.max\(48, 180 - elapsed\)/);
+  assert.match(overrides, /function communityImageAssignment\(img\)/);
+  assert.match(overrides, /stableCommunityImageSets/);
+  assert.match(overrides, /aspect-ratio.*16 \/ 9/);
+  assert.doesNotMatch(overrides, /function keepDongguiTeamPostImagesStable\(\)/);
+  assert.doesNotMatch(overrides, /function replaceDongguiTeamPostImages\(root\)/);
+});
+
+test("home hero carousel preserves the last loaded image between automatic slides", () => {
+  assert.match(overrides, /function stabilizeHomeHeroCarousel\(\)/);
+  assert.match(overrides, /data-stable-home-hero/);
+  assert.match(overrides, /!image\.complete \|\| image\.naturalWidth < 1/);
+  assert.match(overrides, /background-image/);
+  assert.match(overrides, /image\.addEventListener\("load", preserveLoadedImage/);
+  assert.match(overrides, /stabilizeHomeHeroCarousel\(\);/);
+});
+
+test("profile route hides the legacy page until guest replacements are complete", () => {
+  assert.match(overrides, /function beginRouteHandoffGuard\(kind\)/);
+  assert.match(overrides, /if \(kind === "profile"\) \{/);
+  assert.match(overrides, /profileHandoffInProgress = true/);
+  assert.match(overrides, /function finishProfileHandoff\(attempt\)/);
+  assert.match(overrides, /const guestReady = hasRealAccount\(\) \|\| \(\/未登录用户\|游客\//);
+  assert.match(overrides, /!\/张小华\|北京市第一中学\//);
+  assert.match(overrides, /window\.requestAnimationFrame\(function \(\) \{\s*window\.requestAnimationFrame/);
+  assert.match(overrides, /\.profile-route-flash-guard #main-content \{ opacity: 0 !important/);
+  assert.match(overrides, /document\.addEventListener\("pointerdown", prepareRouteHandoff, true\)/);
 });
 
 test("course designer supports students, adults, universities and cadre education", () => {
