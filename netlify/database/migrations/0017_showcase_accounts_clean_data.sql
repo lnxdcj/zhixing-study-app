@@ -7,16 +7,9 @@ VALUES
 ('13131313-1313-4313-8313-131313131313','zhang.siyuan2026@outlook.com','scrypt$AmNgSYDB-bpj7qV1e-cVSA$5-yPkQP7YQ2A4R0E4tSR2a1JcwcwtlI0-HYieDwM-Yu0Pd9QwUwPXWZlPpd2nT06vYeM-2omWmILpEKk4vNEsg','张思远','student','北京市知行实验中学','./assets/images/local/img-01-a183044718.jpg','active',960,now()),
 ('23232323-2323-4323-8323-232323232323','zhang.parent2026@163.com','scrypt$AmNgSYDB-bpj7qV1e-cVSA$5-yPkQP7YQ2A4R0E4tSR2a1JcwcwtlI0-HYieDwM-Yu0Pd9QwUwPXWZlPpd2nT06vYeM-2omWmILpEKk4vNEsg','张女士','parent','北京市知行实验中学','./assets/images/local/img-12-42a5b04af9.jpg','active',160,now()),
 ('34343434-3434-4343-8343-343434343434','li.teacher2026@qq.com','scrypt$AmNgSYDB-bpj7qV1e-cVSA$5-yPkQP7YQ2A4R0E4tSR2a1JcwcwtlI0-HYieDwM-Yu0Pd9QwUwPXWZlPpd2nT06vYeM-2omWmILpEKk4vNEsg','李老师','teacher','知行研学中心','./assets/images/local/img-13-c1fd0a6461.jpg','active',0,now())
-ON CONFLICT (email) DO UPDATE SET
-password_hash=EXCLUDED.password_hash,
-display_name=EXCLUDED.display_name,
-role=EXCLUDED.role,
-school=EXCLUDED.school,
-avatar_url=EXCLUDED.avatar_url,
-status='active',
-points=EXCLUDED.points,
-email_verified_at=COALESCE(users.email_verified_at, now()),
-updated_at=now();
+-- Existing production rows may already use the same UUID with a legacy email
+-- value. Ignore any unique-key collision so this seed remains deploy-safe.
+ON CONFLICT DO NOTHING;
 
 UPDATE courses
 SET teacher_id='33333333-3333-4333-8333-333333333333', updated_at=now()
