@@ -4,16 +4,8 @@ VALUES
 ('13131313-1313-4313-8313-131313131313','zhang.siyuan2026@outlook.com','scrypt$1FGWCssuaPbc_cvVQg7q9g$3vMMorqcIz02y5AUpPQiee1WGPwZ-d9bYlUr-mqDaGSp9ptZX9ASVpmk0TBtX3wXt0tNqrMPjNMfMFiGMacepg','陈思远','student','北京市知行实验中学','https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/A_view_of_a_classroom_in_Tieling_High_School_01.jpg/320px-A_view_of_a_classroom_in_Tieling_High_School_01.jpg','active',960,now()),
 ('23232323-2323-4323-8323-232323232323','zhang.parent2026@163.com','scrypt$1FGWCssuaPbc_cvVQg7q9g$3vMMorqcIz02y5AUpPQiee1WGPwZ-d9bYlUr-mqDaGSp9ptZX9ASVpmk0TBtX3wXt0tNqrMPjNMfMFiGMacepg','陈妈妈','parent','北京市知行实验中学','https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=320&q=80','active',160,now()),
 ('34343434-3434-4343-8343-343434343434','li.teacher2026@qq.com','scrypt$1FGWCssuaPbc_cvVQg7q9g$3vMMorqcIz02y5AUpPQiee1WGPwZ-d9bYlUr-mqDaGSp9ptZX9ASVpmk0TBtX3wXt0tNqrMPjNMfMFiGMacepg','李老师','teacher','知行研学中心','https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=320&q=80','active',0,now())
-ON CONFLICT (email) DO UPDATE SET
-password_hash=EXCLUDED.password_hash,
-display_name=EXCLUDED.display_name,
-role=EXCLUDED.role,
-school=EXCLUDED.school,
-avatar_url=EXCLUDED.avatar_url,
-status='active',
-points=EXCLUDED.points,
-email_verified_at=COALESCE(users.email_verified_at, now()),
-updated_at=now();
+-- Production may already contain these UUIDs with legacy email values.
+ON CONFLICT DO NOTHING;
 
 UPDATE courses
 SET teacher_id='34343434-3434-4343-8343-343434343434', updated_at=now()
