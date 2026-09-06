@@ -254,7 +254,7 @@ test("AI guide cards open with mouse, touch and keyboard input", () => {
   assert.match(overrides, /function restoreAiGuideModal\(\)/);
   assert.match(overrides, /data-protected-floating-surface/);
   assert.match(overrides, /restoreAiGuideModal\(\);/);
-  assert.match(indexHtml, /media-overrides\.js\?v=203-route-stability/);
+  assert.match(indexHtml, /media-overrides\.js\?v=204-media-route-performance/);
 });
 
 test("global login button stays draggable, safe and aligned on home", () => {

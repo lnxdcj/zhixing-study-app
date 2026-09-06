@@ -568,7 +568,9 @@
     const classes = String(img.className || "");
     if (/rounded-full|avatar|icon|logo/i.test(classes)) return false;
     const rect = img.getBoundingClientRect ? img.getBoundingClientRect() : null;
-    if (rect && rect.width <= 52 && rect.height <= 52) return false;
+    // Newly inserted images can be zero-sized before the browser lays them out;
+    // only classify measured small squares as avatars/icons.
+    if (rect && rect.width > 0 && rect.height > 0 && rect.width <= 52 && rect.height <= 52) return false;
     return true;
   }
 
@@ -591,13 +593,16 @@
   function localizeRemoteImages(root) {
     const scope = root && root.querySelectorAll ? root : document;
     const used = new Set();
-    scope.querySelectorAll("img").forEach(function (img) {
+    const images = scope instanceof HTMLImageElement ? [scope].concat(Array.from(scope.querySelectorAll("img"))) : Array.from(scope.querySelectorAll("img"));
+    images.forEach(function (img) {
       if (!(img instanceof HTMLImageElement)) return;
       if (/(assets\/images\/local\/|assets\/images\/donggui-team-)/.test(img.src || "")) used.add(img.src);
     });
-    scope.querySelectorAll("img").forEach(function (img) {
+    images.forEach(function (img) {
       if (!isContentImage(img)) return;
       if (/api\.dicebear\.com/.test(img.src || "")) return;
+      img.loading = "eager";
+      img.decoding = "async";
       const context = contextTextForImage(img);
       const community = communityImageAssignment(img);
       const semanticPhoto = semanticPhotoForContext(context);
@@ -3570,7 +3575,8 @@
     ensureMobileMediaStyle();
     const scope = root && root.querySelectorAll ? root : document;
     localizeRemoteImages(scope);
-    scope.querySelectorAll("img").forEach(function (img) {
+    const images = scope instanceof HTMLImageElement ? [scope].concat(Array.from(scope.querySelectorAll("img"))) : Array.from(scope.querySelectorAll("img"));
+    images.forEach(function (img) {
       if (!(img instanceof HTMLImageElement)) return;
       img.dataset.mobileMediaStable = "true";
       if (!img.getAttribute("src") && img.dataset.src) img.src = img.dataset.src;
@@ -4143,7 +4149,7 @@
       document.documentElement.classList.add("profile-route-flash-guard");
     }
     window.clearTimeout(routeHandoffGuardTimer);
-    routeHandoffGuardTimer = window.setTimeout(clearRouteHandoffGuard, 900);
+    routeHandoffGuardTimer = window.setTimeout(clearRouteHandoffGuard, 500);
   }
 
   function clearRouteHandoffGuard() {
@@ -4181,7 +4187,7 @@
           restoreProfileInteractivity();
         });
       });
-    }, tries === 0 ? 0 : 50);
+    }, tries === 0 ? 0 : 30);
   }
 
   function restoreProfileInteractivity() {
@@ -4254,7 +4260,7 @@
     }
     if (hasRealAccount()) return;
     document.documentElement.classList.add("guest-route-transition");
-    window.setTimeout(function () { document.documentElement.classList.remove("guest-route-transition"); }, 420);
+    window.setTimeout(function () { document.documentElement.classList.remove("guest-route-transition"); }, 180);
   }
 
   function prepareRouteHandoff(event) {
@@ -4289,7 +4295,7 @@
         syncGuestInitialState();
         syncZhiProgressConsistency(document);
         syncZhiInitialProgressBars(document);
-        window.setTimeout(clearRouteHandoffGuard, 320);
+        window.setTimeout(clearRouteHandoffGuard, 180);
       }, 0);
       return;
     }
@@ -8500,6 +8506,7 @@
       record.addedNodes.forEach(function (node) {
         if (node.nodeType !== Node.ELEMENT_NODE) return;
         processImages(node);
+        localizeRemoteImages(node);
         hasElementChanges = true;
       });
     });
@@ -8580,7 +8587,7 @@
       if (window.location.hash !== "#/message") suppressMessageRouteFlash();
       if (!hasRealAccount()) {
         document.documentElement.classList.add("guest-route-transition");
-        window.setTimeout(function () { document.documentElement.classList.remove("guest-route-transition"); }, 360);
+        window.setTimeout(function () { document.documentElement.classList.remove("guest-route-transition"); }, 180);
       }
       syncGuestRouteState();
       syncReliableBottomNav();
