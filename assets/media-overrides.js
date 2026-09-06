@@ -107,7 +107,8 @@
   const directRules = [
     [/土尔扈特部回归|zx-review1|zx-23b0336|zx-8e2e2e4|zx-9ae549d/, photos.chengde],
     [/zx-b70601b/, photos.grassland],
-    [/zx-b86981d/, photos.mongolianYurt],
+    // This community post is the grassland post; never map it to snow.
+    [/zx-b86981d/, photos.grassland],
     [/丝绸之路探险|zx-review2|zx-1fe2984|zx-62fdafa|zx-dunhuan|zx-09e896e/, photos.dunhuang],
     [/神农架生态探秘|zx-a40cd64|zx-be58c20|zx-30452d4/, photos.shennongjia],
     [/航天科技之旅|zx-review4|zx-573ad63|zx-dba1526/, photos.wenchang],
@@ -551,7 +552,7 @@
     while (candidate && candidate !== document.body) {
       const text = (candidate.textContent || "").replace(/\s+/g, "");
       const definition = stableCommunityImageSets.find(function (item) { return text.includes(item.match); });
-      if (definition && stableCommunityImageSets.filter(function (item) { return text.includes(item.match); }).length === 1) {
+      if (definition) {
         const images = Array.from(candidate.querySelectorAll("img")).filter(isContentImage);
         if (images.length >= 1 && images.includes(img)) {
           return { definition: definition, index: images.indexOf(img) };
@@ -3223,7 +3224,7 @@
       .cloud-message-page { position: fixed; inset: 0; z-index: 45; display: grid; grid-template-rows: auto minmax(0,1fr); width: min(100%,480px); margin: 0 auto; background: radial-gradient(circle at 100% 0, rgba(99,102,241,.12), transparent 230px), linear-gradient(180deg,#f8fbff 0,#f5f7fb 46%,#f7f8fb 100%); color: #1f2937; }
       html:not(.cloud-message-route) .cloud-message-page, html:not(.cloud-message-route) .cloud-thread-page, html:not(.cloud-message-route) .cloud-notice-detail, html:not(.cloud-message-route) .cloud-message-sheet { display: none !important; visibility: hidden !important; pointer-events: none !important; }
       body div[role="alert"][class*="bg-black"], body div[class*="top-1/3"][class*="z-[200]"], body div[class*="bg-black/85"] { display: none !important; visibility: hidden !important; pointer-events: none !important; }
-      .route-handoff-guard #main-content, .message-route-flash-guard #main-content, .zhi-route-flash-guard #main-content, .profile-route-flash-guard #main-content { opacity: 0 !important; pointer-events: none !important; transition: none !important; }
+      .message-route-flash-guard #main-content, .profile-route-flash-guard #main-content { opacity: 0 !important; pointer-events: none !important; transition: none !important; }
       .profile-route-flash-guard body::before { position: fixed; inset: 0 0 72px; z-index: 2147483500; display: block; background: linear-gradient(180deg,#f4fff8 0,#f8fafc 42%,#f8fafc 100%); content: ""; pointer-events: none; }
       .profile-route-flash-guard body::after { position: fixed; top: 46%; left: 50%; z-index: 2147483501; display: block; padding: 10px 14px; border-radius: 8px; background: rgba(255,255,255,.92); color: #64748b; box-shadow: 0 10px 28px rgba(15,23,42,.08); content: "正在打开我的…"; font-size: 12px; font-weight: 700; transform: translate(-50%,-50%); pointer-events: none; }
       .cloud-message-active #main-content { visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; transition: none !important; }
@@ -4149,7 +4150,7 @@
       document.documentElement.classList.add("profile-route-flash-guard");
     }
     window.clearTimeout(routeHandoffGuardTimer);
-    routeHandoffGuardTimer = window.setTimeout(clearRouteHandoffGuard, 500);
+    routeHandoffGuardTimer = window.setTimeout(clearRouteHandoffGuard, 260);
   }
 
   function clearRouteHandoffGuard() {
@@ -4295,7 +4296,9 @@
         syncGuestInitialState();
         syncZhiProgressConsistency(document);
         syncZhiInitialProgressBars(document);
-        window.setTimeout(clearRouteHandoffGuard, 180);
+        window.requestAnimationFrame(function () {
+          clearRouteHandoffGuard();
+        });
       }, 0);
       return;
     }
@@ -8543,13 +8546,11 @@
     document.addEventListener("pointerdown", guardGuestSearchAccess, true);
     document.addEventListener("focusin", guardGuestSearchAccess, true);
     document.addEventListener("click", guardGuestSearchAccess, true);
-    document.addEventListener("pointerdown", prepareRouteHandoff, true);
     document.addEventListener("click", prepareRouteHandoff, true);
     document.addEventListener("pointerdown", handleTeacherCourseBasePanelClick, true);
     document.addEventListener("click", handleTeacherCourseBasePanelClick, true);
     document.addEventListener("pointerdown", handleParentZhiPanelClick, true);
     document.addEventListener("click", handleParentZhiPanelClick, true);
-    document.addEventListener("pointerdown", prepareGuestRouteTransition, true);
     document.addEventListener("click", prepareGuestRouteTransition, true);
     document.addEventListener("pointerdown", closeCloudMessageWhenLeaving, true);
     document.addEventListener("click", markUnreadBadgeRead, true);
@@ -8576,7 +8577,9 @@
           syncCleanZhiProgressFromTaskCount(document);
           syncZhiInitialProgressBars(document);
           syncHistoryQuizBlueProgressTrack(document);
-          window.setTimeout(clearRouteHandoffGuard, 420);
+          window.requestAnimationFrame(function () {
+            clearRouteHandoffGuard();
+          });
         }, 0);
       }
       if (window.location.hash === "#/profile") {

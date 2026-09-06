@@ -245,6 +245,21 @@ test("learning map keeps the real Autonavi tile map", () => {
   assert.match(overrides, /const amapStudyPlaces/);
 });
 
+test("grassland community post never falls back to the snowy mountain photo", () => {
+  assert.match(overrides, /\[\/zx-b86981d\/, photos\.grassland\]/);
+  assert.match(overrides, /const stableCommunityImageSets/);
+  assert.match(overrides, /match: "今天在草原上看到了成群的牛羊"/);
+  assert.match(overrides, /if \(definition\) \{/);
+});
+
+test("home and Zhi Xing route changes do not hide the whole app during handoff", () => {
+  assert.doesNotMatch(overrides, /\.route-handoff-guard #main-content/);
+  assert.match(overrides, /window\.requestAnimationFrame\(function \(\) \{\s*clearRouteHandoffGuard\(\);/);
+  assert.doesNotMatch(overrides, /document\.addEventListener\("pointerdown", prepareRouteHandoff/);
+  assert.doesNotMatch(overrides, /document\.addEventListener\("pointerdown", prepareGuestRouteTransition/);
+  assert.doesNotMatch(indexHtml, /\.guest-route-transition #main-content \{\s*opacity:/);
+});
+
 test("AI guide cards open with mouse, touch and keyboard input", () => {
   assert.match(overrides, /function findAiGuideEntry/);
   assert.match(overrides, /document\.addEventListener\("pointerup"/);
@@ -254,7 +269,7 @@ test("AI guide cards open with mouse, touch and keyboard input", () => {
   assert.match(overrides, /function restoreAiGuideModal\(\)/);
   assert.match(overrides, /data-protected-floating-surface/);
   assert.match(overrides, /restoreAiGuideModal\(\);/);
-  assert.match(indexHtml, /media-overrides\.js\?v=204-media-route-performance/);
+  assert.match(indexHtml, /media-overrides\.js\?v=205-media-route-image-fix/);
 });
 
 test("global login button stays draggable, safe and aligned on home", () => {
@@ -314,7 +329,7 @@ test("profile route hides the legacy page until guest replacements are complete"
   assert.match(overrides, /!\/张小华\|北京市第一中学\//);
   assert.match(overrides, /window\.requestAnimationFrame\(function \(\) \{\s*window\.requestAnimationFrame/);
   assert.match(overrides, /\.profile-route-flash-guard #main-content \{ opacity: 0 !important/);
-  assert.match(overrides, /document\.addEventListener\("pointerdown", prepareRouteHandoff, true\)/);
+  assert.match(overrides, /document\.addEventListener\("click", prepareRouteHandoff, true\)/);
 });
 
 test("course designer supports students, adults, universities and cadre education", () => {
