@@ -576,8 +576,17 @@
   }
 
   function pickUnusedLocalImage(preferred, used) {
-    // Never swap a matching photo for an unrelated pool image.
-    return preferred || "";
+    const absolute = function (url) {
+      try { return new URL(url, window.location.href).href; } catch (_error) { return String(url || ""); }
+    };
+    const isUsed = function (url) {
+      if (!url) return false;
+      return used.has(url) || used.has(absolute(url));
+    };
+    if (preferred && !isUsed(preferred)) return preferred;
+    const fallback = localImagePool.find(function (url) { return !isUsed(url); });
+    // Reuse only after the visible page has exhausted the local image pool.
+    return fallback || preferred || "";
   }
 
   function localImageForRemote(url, used, context) {
